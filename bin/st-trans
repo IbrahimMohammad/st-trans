@@ -1,0 +1,79 @@
+#!/bin/bash
+
+# Selected text translator by ibrahim mohammad
+# Email: ibrahim.mohammad.2015@gmail.com
+# GitHub repository: https://github.com/IbrahimMohammad/shell_script
+# No Rights Reserved
+
+if [ -n "$1" ]; then # options
+    if [ "$1" == "-l" ]; then # print languages table
+        echo "┌──────────────────────┬───────────────────────┬───────────────────────┐
+│Language Name    Code │Language Name     Code │Language Name     Code │ 
+│──────────────────────│───────────────────────│───────────────────────│ 
+│ Afrikaans      - af  │ Hawaiian        - haw │ Portuguese      - pt  │ 
+│ Albanian       - sq  │ Hebrew          - he  │ Punjabi         - pa  │ 
+│ Amharic        - am  │ Hindi           - hi  │ Romanian        - ro  │ 
+│ Arabic         - ar  │ Hmong           - hmn │ Romansh         - rm  │ 
+│ Armenian       - hy  │ Hungarian       - hu  │ Russian         - ru  │ 
+│ Assamese       - as  │ Icelandic       - is  │ Samoan          - sm  │ 
+│ Azerbaijani    - az  │ Igbo            - ig  │ Scottish Gaelic - gd  │ 
+│ Bashkir        - ba  │ Indonesian      - id  │ Serbian         - sr  │ 
+│ Basque         - eu  │ Interlingue     - ie  │ Sesotho         - st  │ 
+│ Belarusian     - be  │ Irish           - ga  │ Shona           - sn  │ 
+│ Bengali        - bn  │ Italian         - it  │ Sindhi          - sd  │ 
+│ Bosnian        - bs  │ Japanese        - ja  │ Sinhala         - si  │ 
+│ Breton         - br  │ Javanese        - jv  │ Slovak          - sk  │ 
+│ Bulgarian      - bg  │ Kannada         - kn  │ Slovenian       - sl  │ 
+│ Catalan        - ca  │ Kazakh          - kk  │ Somali          - so  │ 
+│ Cebuano        - ceb │ Khmer           - km  │ Spanish         - es  │ 
+│ Cherokee       - chr │ Kinyarwanda     - rw  │ Sundanese       - su  │ 
+│ Chichewa       - ny  │ Korean          - ko  │ Swahili         - sw  │ 
+│ Chinese Simp.  - zh-CN Kurdish         - ku  │ Swedish         - sv  │ 
+│ Chinese Trad.  - zh-TW Kyrgyz          - ky  │ Tajik           - tg  │ 
+│ Corsican       - co  │ Lao             - lo  │ Tamil           - ta  │ 
+│ Croatian       - hr  │ Latin           - la  │ Tatar           - tt  │ 
+│ Czech          - cs  │ Latvian         - lv  │ Telugu          - te  │ 
+│ Danish         - da  │ Lithuanian      - lt  │ Thai            - th  │ 
+│ Dutch          - nl  │ Luxembourgish   - lb  │ Tibetan         - bo  │ 
+│ Dzongkha       - dz  │ Macedonian      - mk  │ Tigrinya        - ti  │ 
+│ English        - en  │ Malagasy        - mg  │ Turkish         - tr  │ 
+│ Esperanto      - eo  │ Malay           - ms  │ Turkmen         - tk  │ 
+│ Estonian       - et  │ Malayalam       - ml  │ Ukrainian       - uk  │ 
+│ Faroese        - fo  │ Maltese         - mt  │ Urdu            - ur  │ 
+│ Fijian         - fj  │ Maori           - mi  │ Uyghur          - ug  │ 
+│ Filipino       - tl  │ Marathi         - mr  │ Uzbek           - uz  │ 
+│ Finnish        - fi  │ Mongolian       - mn  │ Vietnamese      - vi  │ 
+│ French         - fr  │ Myanmar         - my  │ Volapük         - vo  │ 
+│ Galician       - gl  │ Nepali          - ne  │ Welsh           - cy  │ 
+│ Georgian       - ka  │ Norwegian       - no  │ Western Frisian - fy  │ 
+│ German         - de  │ Occitan         - oc  │ Wolof           - wo  │ 
+│ Greek          - el  │ Oriya           - or  │ Xhosa           - xh  │ 
+│ Guarani        - gn  │ Oromo           - om  │ Yiddish         - yi  │ 
+│ Gujarati       - gu  │ Pashto          - ps  │ Yoruba          - yo  │ 
+│ Haitian Creole - ht  │ Persian         - fa  │ Zulu            - zu  │ 
+│ Hausa          - ha  │ Polish          - pl  │                       │
+└──────────────────────┴───────────────────────┴───────────────────────┘"
+        exit 0
+	# if there are : in $1 edit languages
+    elif echo "$1" | grep -qF ':'; then
+        curr_source_lang="$(cut -sd \& -f 2 ~/.st-trans)"
+        curr_target_lang="$(cut -sd \& -f 3 ~/.st-trans)"
+        new_source_lang="$(echo "$1" | cut -sd \: -f 1)"
+        new_target_lang="$(echo "$1" | cut -sd \: -f 2)"
+        # change source language
+		if [ -n "$new_source_lang" ]; then
+        sed -i "5s/$curr_source_lang/sl=$new_source_lang/" ~/.st-trans
+		fi
+        # change target languade
+		if [ -n "$new_target_lang" ]; then
+        sed -i "5s/$curr_target_lang/tl=$new_target_lang/" ~/.st-trans
+		fi
+	# more options with elif
+	else
+	# help
+	exit 1
+	fi
+else
+# help
+exit 1
+fi
