@@ -2,4 +2,4 @@
 
 # run this script when shortcut key pressed
 
-notify-send -u critical "$(xsel -o)" "$(wget -U "Mozilla/5.0" -qO - "https://translate.google.com/translate_a/single?client=t&sl=en&tl=ar&hl=en&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&dt=t&dt=at&ie=UTF-8&oe=UTF-8&rom=1&srcrom=1&ssel=5&tsel=4&tk=519531|630690&q=$(xsel -o)" | sed 's/\[\[\[\"//' | cut -d \" -f 1)"
+notify-send -u normal "$(xsel -o)" "$(wget -U "Mozilla/5.0" -qO - "https://translate.google.com/translate_a/single?client=t&sl=en&tl=ar&hl=en&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&dt=t&dt=at&ie=UTF-8&oe=UTF-8&rom=1&srcrom=1&ssel=5&tsel=4&tk=519531|630690&q=$(xsel -o)" | sed 's/\[\[\[\"//' | cut -d \" -f 1)"
