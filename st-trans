@@ -11,27 +11,31 @@ if [ $EUID -ne 0 ]; then
     echo 'يجب تشغيل هذا السكربت كمستخدم جذر. استخدم الأمر sudo ./st-trans أو su -c ./st-trans لتشغيله.'
     exit 1
 fi
-# install depends
-apt-get --assume-yes install libnotify-bin xsel xbindkeys || exit 1
-# run next commands as the logged in user
+# install depends for fedora or debian
+if cat /usr/lib/os-release | grep -qF 'Fedora'; then
+    dnf --assumeyes install libnotify xsel xbindkeys || exit 1
+else
+    apt-get --assume-yes install libnotify-bin xsel xbindkeys || exit 1
+fi
+# download st-trans
+wget -qO /usr/bin/st-trans \
+"https://raw.githubusercontent.com/IbrahimMohammad/shell_script/master/st-trans/bin/st-trans" || exit 1
+chmod 755 /usr/bin/st-trans
+# get the logged in user
 if [ -n "$SUDO_USER" ]; then
     user=$SUDO_USER
 else
     user=$USERNAME
 fi
 # download .st-trans
-su - $user --command 'wget -qO ~/.st-trans \
+su --command - $user 'wget -qO ~/.st-trans \
 "https://raw.githubusercontent.com/IbrahimMohammad/shell_script/master/st-trans/.st-trans" || exit 1'
-su - $user --command 'chmod 755 .st-trans'
+su --command - $user 'chmod 755 .st-trans'
 # add script to shortcut key
-su - $user --command 'echo "\"~/.st-trans\"" >> ~/.xbindkeysrc'
-su - $user --command 'echo "Alt + t" >> ~/.xbindkeysrc'
+su --command - $user 'echo "\"~/.st-trans\"" >> ~/.xbindkeysrc'
+su --command - $user 'echo "Alt + t" >> ~/.xbindkeysrc'
 # update xbindkeys to use the new shortcut key
-su - $user --command 'xbindkeys'
-# download st-trans
-wget -qO /usr/bin/st-trans \
-"https://raw.githubusercontent.com/IbrahimMohammad/shell_script/master/st-trans/bin/st-trans" || exit 1
-chmod 755 /usr/bin/st-trans
+su --command - $user 'xbindkeys'
 # send notify to the user
-su - $user --command 'notify-send -t 0 -u critical "تم تثبيت st-trans بنجاح :)" "حدد النص ثم اضغط Alt + t وستظهر الترجمة هنا."'
+su --command - $user 'notify-send -t 0 -u critical "تم تثبيت st-trans بنجاح :)" "حدد النص ثم اضغط Alt + t وستظهر الترجمة هنا."'
 exit
