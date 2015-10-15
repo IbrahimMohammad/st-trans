@@ -11,17 +11,13 @@ if [ $EUID -ne 0 ]; then
     echo 'يجب تشغيل هذا السكربت كمستخدم جذر. استخدم الأمر sudo ./st-trans أو su -c ./st-trans لتشغيله.'
     exit 1
 fi
-# install depends for fedora or debian
-if cat /usr/lib/os-release | grep -qF 'Fedora'; then
-    dnf --assumeyes install libnotify xsel xbindkeys || exit 1
-else
-    apt-get --assume-yes install libnotify-bin xsel xbindkeys || exit 1
-fi
+# install depends
+apt-get --assume-yes install libnotify-bin xsel xbindkeys || exit 1
 # download st-trans
 wget -qO /usr/bin/st-trans \
 "https://raw.githubusercontent.com/IbrahimMohammad/shell_script/master/st-trans/bin/st-trans" || exit 1
 chmod 755 /usr/bin/st-trans
-# get the logged in user
+# get logged in username
 if [ -n "$SUDO_USER" ]; then
     user=$SUDO_USER
 else
