@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Selected text translator by ibrahim mohammad
+# Email: ibrahim.mohammad.2015@gmail.com
+# GitHub repository: https://github.com/IbrahimMohammad/shell_script
+# No Rights Reserved
+
 # run this script when shortcut key pressed
 
 notify-send -u normal -t 7000 "$(xsel -o)" "$(wget -U "Mozilla/5.0" -qO - "https://translate.google.com/translate_a/single?client=t&sl=en&tl=ar&hl=en&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&dt=t&dt=at&ie=UTF-8&oe=UTF-8&rom=1&srcrom=1&ssel=5&tsel=4&tk=519531|630690&q=$(xsel -o)" | sed 's/....//' | cut -d '"' -f 1)"
