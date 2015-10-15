@@ -14,7 +14,7 @@ if [ -n "$1" ]; then # options
         echo "nothing change"
     else
         curr_key="$(sed -n '/\~\/\.st-trans/{n;p;}' ~/.xbindkeysrc)"
-        sed "s/$curr_key/$new_key/" ~/.xbindkeysrc
+        sed -i "s/$curr_key/$new_key/" ~/.xbindkeysrc
     fi
     fi
     if [ "$1" == "-l" ]; then # print languages table
