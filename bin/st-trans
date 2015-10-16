@@ -6,18 +6,8 @@
 # No Rights Reserved
 
 if [ -n "$1" ]; then # options
-    if [ "$1" == "-k" ]; then # change shortcut key
-    echo "Please press combination of keys to set your new shortcut key"
-    new_key="$(xbindkeys -k | sed -n '$p')"
-    # check if user enter new shortcut key
-    if [ "$new_key" == 'in $HOME/.xbindkeysrc to bind a key.' ]; then
-        echo "nothing change"
-    else
-        curr_key="$(sed -n '/\~\/\.st-trans/{n;p;}' ~/.xbindkeysrc)"
-        sed -i "s/$curr_key/$new_key/" ~/.xbindkeysrc
-    fi
-    fi
-    if [ "$1" == "-l" ]; then # print languages table
+    # print languages table
+    if [ "$1" == "-l" ]; then
         echo "┌──────────────────────┬───────────────────────┬───────────────────────┐
 │Language Name    Code │Language Name     Code │Language Name     Code │ 
 │──────────────────────│───────────────────────│───────────────────────│ 
@@ -65,7 +55,7 @@ if [ -n "$1" ]; then # options
 │ Hausa          - ha  │ Polish          - pl  │                       │
 └──────────────────────┴───────────────────────┴───────────────────────┘"
         exit 0
-	# if there are : in $1 edit languages
+    # change languages
     elif echo "$1" | grep -qF ':'; then
         curr_source_lang="$(cut -sd \& -f 2 ~/.st-trans)"
         curr_target_lang="$(cut -sd \& -f 3 ~/.st-trans)"
@@ -79,11 +69,22 @@ if [ -n "$1" ]; then # options
 		if [ -n "$new_target_lang" ]; then
         sed -i "5s/$curr_target_lang/tl=$new_target_lang/" ~/.st-trans
 		fi
-	# more options with elif
-	else
-	# help
-	exit 1
-	fi
+    # change shortcut key
+    elif [ "$1" == "-k" ]; then
+        echo "Please press combination of keys to set your new shortcut key"
+        new_key="$(xbindkeys -k | sed -n '$p')"
+        # check if user enter new shortcut key
+        if [ "$new_key" == 'in $HOME/.xbindkeysrc to bind a key.' ]; then
+            echo "nothing change"
+        else
+            curr_key="$(sed -n '/\~\/\.st-trans/{n;p;}' ~/.xbindkeysrc)"
+            sed -i "s/$curr_key/$new_key/" ~/.xbindkeysrc
+        fi
+    # more options with elif
+    else
+    # help
+    exit 1
+    fi
 else
 # help
 exit 1
