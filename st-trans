@@ -1,9 +1,11 @@
 #!/bin/bash
 
-# Selected text translator installer script by ibrahim mohammad
+# Selected text translator by ibrahim mohammad
 # Email: ibrahim.mohammad.2015@gmail.com
 # GitHub repository: https://github.com/IbrahimMohammad/shell_script
 # No Rights Reserved
+
+# Debian based systems installer script
 
 # if non root user run the script
 if [ $EUID -ne 0 ]; then
@@ -15,7 +17,7 @@ fi
 apt-get --assume-yes install libnotify-bin xsel xbindkeys || exit 1
 # download st-trans
 wget -qO /usr/bin/st-trans \
-"https://raw.githubusercontent.com/IbrahimMohammad/shell_script/master/st-trans/bin/st-trans" || exit 1
+"https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/bin/st-trans" || exit 1
 chmod 755 /usr/bin/st-trans
 # get logged in username
 if [ -n "$SUDO_USER" ]; then
@@ -25,7 +27,7 @@ else
 fi
 # download .st-trans
 su --command - $user 'wget -qO ~/.st-trans \
-"https://raw.githubusercontent.com/IbrahimMohammad/shell_script/master/st-trans/.st-trans" || exit 1'
+"https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/.st-trans" || exit 1'
 su --command - $user 'chmod 755 .st-trans'
 # add script to shortcut key
 su --command - $user 'echo "\"~/.st-trans\"" >> ~/.xbindkeysrc'
