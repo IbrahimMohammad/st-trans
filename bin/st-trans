@@ -5,6 +5,38 @@
 # GitHub repository: https://github.com/IbrahimMohammad/shell_script
 # No Rights Reserved
 
+help () {
+    echo "Usage: st-trans [<OPTIONS>|<[SOURCE]:[TARGET]>]
+
+Options
+-l
+show a list of supported languages and codes.
+
+-k
+change shortcut key.
+
+-h
+print this help and exit.
+
+Language preferences
+[SOURCE]:[TARGET]
+To change source and target language use
+SOURCE-CODE:TARGET-CODE
+For example to translate from English to French use this command
+st-trans en:fr
+
+Also you can change just one language either source by
+SOURCE:
+For example
+st-trans en:
+or target
+:TARGET
+For example
+st-trans :fr
+You can use auto as the source language to auto detect source language
+st-trans auto:"
+}
+
 if [ -n "$1" ]; then # options
     # print languages table
     if [ "$1" == "-l" ]; then
@@ -81,12 +113,13 @@ if [ -n "$1" ]; then # options
             sed -i "s/$curr_key/$new_key/" ~/.xbindkeysrc
 	    xbindkeys
         fi
+    elif [ "$1" == "-h" ]; then
+    help
     # more options with elif
     else
-    # help
+    help
     exit 1
     fi
 else
-# help
-exit 1
+help
 fi
