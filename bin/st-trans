@@ -121,6 +121,13 @@ if [ -n "$1" ]; then # options
 			currentTime=$(tail -n 1 ~/.st-trans | cut -sd  \   -f 5)
 			read timeout
 
+			if ! [ "$timeout" -eq "$timeout" ] 2> /dev/null ;then
+					    echo "Sorry integers only"
+						exit 1
+			fi
+
+			timeout=$((timeout*1000))
+
 			sed -i "s/-t $currentTime/-t $timeout/" ~/.st-trans
 			
 			echo "Done."
