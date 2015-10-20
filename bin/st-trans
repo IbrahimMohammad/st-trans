@@ -18,6 +18,9 @@ change shortcut key.
 -h
 print this help and exit.
 
+-t
+change timeout period
+
 Language preferences
 [SOURCE]:[TARGET]
 To change source and target language use
@@ -113,6 +116,16 @@ if [ -n "$1" ]; then # options
             sed -i "s/$curr_key/$new_key/" ~/.xbindkeysrc
 	    xbindkeys
         fi
+    elif [ "$1" == "-t" ]; then
+			echo "Please set timeout period in Seconds: "
+			currentTime=$(tail -n 1 ~/.st-trans | cut -sd  \   -f 5)
+			read timeout
+
+			sed -i "s/-t $currentTime/-t $timeout/" ~/.st-trans
+			
+			echo "Done."
+
+
     elif [ "$1" == "-h" ]; then
     help
     # more options with elif
