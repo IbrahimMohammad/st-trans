@@ -116,11 +116,14 @@ if [ -n "$1" ]; then # options
             sed -i "s/$curr_key/$new_key/" ~/.xbindkeysrc
 	    xbindkeys
         fi
+
+	#Change timeout period
     elif [ "$1" == "-t" ]; then
 			echo "Please set timeout period in Seconds: "
 			currentTime=$(tail -n 1 ~/.st-trans | cut -sd  \   -f 5)
 			read timeout
-
+			
+			#Check that input is integer
 			if ! [ "$timeout" -eq "$timeout" ] 2> /dev/null ;then
 					    echo "Sorry integers only"
 						exit 1
