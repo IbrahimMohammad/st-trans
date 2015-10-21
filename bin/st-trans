@@ -24,6 +24,12 @@ change timeout period.
 -u
 change the urgency level.
 
+-c
+run st-trans in command mode, translate selection when shortcut key pressed (defalt mode).
+
+-i
+run st-trans in instant translation mode, translate selection instantly.
+
 Language preferences
 [SOURCE]:[TARGET]
 To change source and target language use
@@ -175,8 +181,23 @@ if [ -n "$1" ]; then # options
 			esac
 
 			sed -i "s/-u $currentLevel/-u $nextLevel/" ~/.st-trans
-
-    #Show help option
+    # instant translation mode
+    elif [ "$1" == "-i" ]; then
+        # check if the daemon already running if not run it
+        if pgrep -l st-trans-daemon &> /dev/null; then
+	    echo 'Instant translation mode already running.'
+	else
+	    st-trans-daemon
+            echo 'Instant translation mode activated.'
+	fi
+    # command mode
+    elif [ "$1" == "-c" ]; then
+        if killall st-trans-daemon &> /dev/null; then
+	    echo 'Command mode activated.'
+	else
+	    echo 'Command mode already running.'
+	fi
+    # show help option
     elif [ "$1" == "-h" ]; then
     help
     # more options with elif
