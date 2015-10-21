@@ -19,7 +19,10 @@ change shortcut key.
 print this help and exit.
 
 -t
-change timeout period
+change timeout period.
+
+-u
+change the urgency level.
 
 Language preferences
 [SOURCE]:[TARGET]
@@ -119,23 +122,61 @@ if [ -n "$1" ]; then # options
 
 	#Change timeout period
     elif [ "$1" == "-t" ]; then
-			echo "Please set timeout period in Seconds: "
+
+		#ensure that $2 exist
+        if ! [ -n "$2" ]; then	    
+            help
+			exit 1
+	    fi
 			currentTime=$(tail -n 1 ~/.st-trans | cut -sd  \   -f 5)
-			read timeout
+
 			
 			#Check that input is integer
-			if ! [ "$timeout" -eq "$timeout" ] 2> /dev/null ;then
+			if ! [ "$2" -eq "$2" ] 2> /dev/null ;then
 					    echo "Sorry integers only"
 						exit 1
 			fi
 
-			timeout=$((timeout*1000))
+			timeout=$(($2*1000))
 
 			sed -i "s/-t $currentTime/-t $timeout/" ~/.st-trans
 			
-			echo "Done."
+			
+	#Change urgency level:
+    elif [ "$1" == "-u" ]; then
+		#ensure that $2 exist
+        if ! [ -n "$2" ]; then	    
+            help
+			exit 1
+	    fi
+	
+		#Check that input is integer
+		if ! [ "$2" -eq "$2" ] 2> /dev/null ;then
+			echo "Sorry integers only"
+			exit 1
+		fi
 
+		currentLevel=$(tail -n 1 ./.st-trans | cut -sd  \  -f 3)
 
+		case $2 in
+			0)    nextLevel='low'
+							;;
+
+			1)    nextLevel='normal'
+							;;
+
+			2)    nextLevel='critical'
+							;;
+
+			*)    echo "invalid number."
+			      help
+		          exit 1
+							;;
+			esac
+
+			sed -i "s/-u $currentLevel/-u $nextLevel/" ~/.st-trans
+
+    #Show help option
     elif [ "$1" == "-h" ]; then
     help
     # more options with elif
