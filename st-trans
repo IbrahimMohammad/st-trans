@@ -19,6 +19,10 @@ apt-get --assume-yes install libnotify-bin xsel xbindkeys || exit 1
 wget -qO /usr/bin/st-trans \
 "https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/bin/st-trans" || exit 1
 chmod 755 /usr/bin/st-trans
+# download daemon
+wget -qO /usr/bin/st-trans-daemon \
+"https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/bin/st-trans-daemon" || exit 1
+chmod 755
 # get logged in username
 if [ -n "$SUDO_USER" ]; then
     user=$SUDO_USER
