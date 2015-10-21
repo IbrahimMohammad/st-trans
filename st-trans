@@ -22,7 +22,7 @@ chmod 755 /usr/bin/st-trans
 # download daemon
 wget -qO /usr/bin/st-trans-daemon \
 "https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/bin/st-trans-daemon" || exit 1
-chmod 755
+chmod 755 /usr/bin/st-trans-daemon
 # get logged in username
 if [ -n "$SUDO_USER" ]; then
     user=$SUDO_USER
