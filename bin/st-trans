@@ -24,6 +24,9 @@ change timeout period.
 -u
 change the urgency level.
 
+-v
+invert source language with target language. note: you can't use this option when source language set to auto.
+
 -c
 run st-trans in command mode, translate selection when shortcut key pressed (defalt mode).
 
@@ -98,7 +101,6 @@ if [ -n "$1" ]; then # options
 │ Haitian Creole - ht  │ Persian         - fa  │ Zulu            - zu  │ 
 │ Hausa          - ha  │ Polish          - pl  │                       │
 └──────────────────────┴───────────────────────┴───────────────────────┘"
-        exit 0
     # change languages
     elif echo "$1" | grep -qF ':'; then
         curr_source_lang="$(cut -sd \& -f 2 ~/.st-trans)"
@@ -109,7 +111,7 @@ if [ -n "$1" ]; then # options
 		if [ -n "$new_source_lang" ]; then
         sed -i "5s/$curr_source_lang/sl=$new_source_lang/" ~/.st-trans
 		fi
-        # change target languade
+        # change target language
 		if [ -n "$new_target_lang" ]; then
         sed -i "5s/$curr_target_lang/tl=$new_target_lang/" ~/.st-trans
 		fi
@@ -123,25 +125,19 @@ if [ -n "$1" ]; then # options
         else
             curr_key="$(sed -n '/\~\/\.st-trans/{n;p;}' ~/.xbindkeysrc)"
             sed -i "s/$curr_key/$new_key/" ~/.xbindkeysrc
-	    xbindkeys
+            xbindkeys
+        fi	
+    # invert source language with target language
+    elif [ "$1" == "-v" ]; then
+        curr_source_lang_code="$(cut -sd \& -f 2 ~/.st-trans | cut -sd \= -f 2)" # only language code without "sl="
+        if [ "$curr_source_lang_code" == "auto" ]; then
+            notify-send -t 0 -u critical "Source language set to auto so i can't invert it." "Please change source language to any supported language so i can invert it for you."
+            exit 1
         fi
-	
-	# invert source languege with target languege
-	elif [ "$1" == "-v" ]; then
-        curr_source_lang_code="$(cut -sd \& -f 2 ~/.st-trans | cut -sd \= -f 2)" #only language code without "sl="
-		if [ "$curr_source_lang_code" == "auto" ]; then
-			notify-send -t 0 -u critical "Source language set to auto so i can't invert language." "Please change source language first to any language then try to invert it."
-			exit 1
-		fi
-
-        curr_target_lang_code="$(cut -sd \& -f 3 ~/.st-trans | cut -sd \= -f 2)" #only language code without "tl="
-        sed -i "s/sl=$curr_source_lang_code/sl=$curr_target_lang_code/g" ~/.st-trans #replace source with target this will make source and target same
-		sed -i "s/sl=$curr_target_lang_code\&tl=$curr_target_lang_code/sl=$curr_target_lang_code\&tl=$curr_source_lang_code/g" ~/.st-trans #fix the previos issue
-
-		echo 'st-trans -v' >> ~/.xbindkeysrc
-		echo 'Alt + v' >> ~/.xbindkeysrc
-		
-	#Change timeout period
+        curr_target_lang_code="$(cut -sd \& -f 3 ~/.st-trans | cut -sd \= -f 2)" # only language code without "tl="
+        # invert
+        sed -i -e "s/sl=$curr_source_lang_code/sl=$curr_target_lang_code/" -e "s/tl=$curr_target_lang_code/tl=$curr_source_lang_code/" ~/.st-trans
+    # change timeout period
     elif [ "$1" == "-t" ]; then
 
         #ensure that $2 exist
