@@ -109,11 +109,11 @@ if [ -n "$1" ]; then # options
         new_target_lang="$(echo "$1" | cut -sd \: -f 2)"
         # change source language
 		if [ -n "$new_source_lang" ]; then
-        sed -i "5s/$curr_source_lang/sl=$new_source_lang/" ~/.st-trans
+        sed -i "s/$curr_source_lang/sl=$new_source_lang/" ~/.st-trans
 		fi
         # change target language
 		if [ -n "$new_target_lang" ]; then
-        sed -i "5s/$curr_target_lang/tl=$new_target_lang/" ~/.st-trans
+        sed -i "s/$curr_target_lang/tl=$new_target_lang/" ~/.st-trans
 		fi
     # change shortcut key
     elif [ "$1" == "-k" ]; then
