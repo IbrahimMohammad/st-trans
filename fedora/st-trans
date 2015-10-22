@@ -2,7 +2,7 @@
 
 # Selected text translator by ibrahim mohammad
 # Email: ibrahim.mohammad.2015@gmail.com
-# GitHub repository: https://github.com/IbrahimMohammad/shell_script
+# GitHub repository: https://github.com/IbrahimMohammad/st-trans
 # No Rights Reserved
 
 # Fedora installer script
@@ -36,9 +36,11 @@ fi
 su --command - $user 'wget -qO ~/.st-trans \
 "https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/.st-trans" || exit 1'
 su --command - $user 'chmod 755 .st-trans'
-# add script to shortcut key
+# add shortcut keys
 su --command - $user 'echo "\"~/.st-trans\"" >> ~/.xbindkeysrc'
 su --command - $user 'echo "Alt + t" >> ~/.xbindkeysrc'
+su --command - $user 'echo "\"st-trans -v\"" >> ~/.xbindkeysrc'
+su --command - $user 'echo "Alt + v" >> ~/.xbindkeysrc'
 # update xbindkeys to use the new shortcut key
 su --command - $user 'xbindkeys'
 # send notify to the user
