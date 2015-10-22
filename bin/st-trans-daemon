@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Selected text translator by ibrahim mohammad
+# Email: ibrahim.mohammad.2015@gmail.com
+# GitHub repository: https://github.com/IbrahimMohammad/st-trans
+# No Rights Reserved
+
+# st-trans instant translation daemon
+
+while true; do
+    old="$(xsel -o)"
+    while [ "$(xsel -o)" == "$old" ]; do
+        sleep 1
+    done
+    # translate
+    ~/.st-trans
+done &> /dev/null&
