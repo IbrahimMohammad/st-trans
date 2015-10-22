@@ -126,11 +126,11 @@ if [ -n "$1" ]; then # options
 	    xbindkeys
         fi
 	
-	#Reverse source languege with target languege
+	# invert source languege with target languege
 	elif [ "$1" == "-v" ]; then
         curr_source_lang_code="$(cut -sd \& -f 2 ~/.st-trans | cut -sd \= -f 2)" #only language code without "sl="
 		if [ "$curr_source_lang_code" == "auto" ]; then
-			notify-send -u critical -t 0 "Error, source language have been set to auto" "cannot replaced with target language"
+			notify-send -t 0 -u critical "Source language set to auto so i can't invert language." "Please change source language first to any language then try to invert it."
 			exit 1
 		fi
 
@@ -138,8 +138,8 @@ if [ -n "$1" ]; then # options
         sed -i "s/sl=$curr_source_lang_code/sl=$curr_target_lang_code/g" ~/.st-trans #replace source with target this will make source and target same
 		sed -i "s/sl=$curr_target_lang_code\&tl=$curr_target_lang_code/sl=$curr_target_lang_code\&tl=$curr_source_lang_code/g" ~/.st-trans #fix the previos issue
 
-		echo '~/.st-trans -r' >> ~/.xbindkeysrc
-		echo 'Alt + r' >> ~/.xbindkeysrc
+		echo 'st-trans -v' >> ~/.xbindkeysrc
+		echo 'Alt + v' >> ~/.xbindkeysrc
 		
 	#Change timeout period
     elif [ "$1" == "-t" ]; then
