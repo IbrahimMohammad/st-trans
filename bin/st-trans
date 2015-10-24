@@ -110,11 +110,10 @@ if [ -n "$1" ]; then # options
         # is there are a source language?
 		if [ -n "$new_source_lang" ]; then
             # check language code
-            if ! grep -q "\- $new_source_lang " st-trans; then
-                if [ "$new_source_lang" != "auto" ]; then
+            if ! grep -q "\- $new_source_lang " /usr/bin/st-trans  &&  [ "$new_source_lang" != "auto" ]; then
                     echo "\"$new_source_lang\" isn't a supported language code. please take a look at language table with st-trans -l"
                     exit 1
-                fi
+                
             fi
             # change source language
             sed -i "s/$curr_source_lang/sl=$new_source_lang/" ~/.st-trans
@@ -122,7 +121,7 @@ if [ -n "$1" ]; then # options
         # is there are a target language?
 		if [ -n "$new_target_lang" ]; then
             # check language code
-            if ! grep -q "\- $new_target_lang " st-trans; then
+            if ! grep -q "\- $new_target_lang " /usr/bin/st-trans  ; then
                 echo "\"$new_target_lang\" isn't a supported language code. please take a look at supported language table with st-trans -l"
                 exit 1
             fi
