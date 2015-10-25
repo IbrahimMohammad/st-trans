@@ -113,7 +113,6 @@ if [ -n "$1" ]; then # options
             if ! grep -q "\- $new_source_lang " /usr/bin/st-trans  &&  [ "$new_source_lang" != "auto" ]; then
                     echo "\"$new_source_lang\" isn't a supported language code. please take a look at language table with st-trans -l"
                     exit 1
-                
             fi
             # change source language
             sed -i "s/$curr_source_lang/sl=$new_source_lang/" ~/.st-trans
@@ -195,18 +194,18 @@ if [ -n "$1" ]; then # options
     elif [ "$1" == "-i" ]; then
         # check if the daemon already running if not run it
         if pgrep -l st-trans-daemon &> /dev/null; then
-	    echo 'Instant translation mode already running.'
-	else
-	    st-trans-daemon
+	        echo 'Instant translation mode already running.'
+	    else
+	        setsid st-trans-daemon &> /dev/null < /dev/null&
             echo 'Instant translation mode activated.'
-	fi
+	    fi
     # command mode
     elif [ "$1" == "-c" ]; then
         if killall st-trans-daemon &> /dev/null; then
-	    echo 'Command mode activated.'
-	else
-	    echo 'Command mode already running.'
-	fi
+	        echo 'Command mode activated.'
+	    else
+	        echo 'Command mode already running.'
+	    fi
     # show help option
     elif [ "$1" == "-h" ]; then
     help
