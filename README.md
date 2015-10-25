@@ -7,7 +7,7 @@ You don't need to open your browser then go to Google translate site to just tra
 
 For debian based systems (Debian, Ubuntu, Linux Mint, elementary OS, Kali Linux… etc)
 ```Bash
-wget -O st-trans 'https://goo.gl/0uK4Va' && chmod 755 st-trans
+wget -O st-trans 'https://goo.gl/H64pZP' && chmod 755 st-trans
 sudo ./st-trans
 ```
 
