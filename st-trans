@@ -29,17 +29,27 @@ if [ -n "$SUDO_USER" ]; then
 else
     user=$USERNAME
 fi
-# download .st-trans
-su --command - $user 'wget -qO ~/.st-trans \
+
+#add reset option
+
+if ! [ -e ~/.st-trans ] || [ "$1" == "--reset" ]; then
+    # download .st-trans
+    su --command - $user 'wget -qO ~/.st-trans \
 "https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/.st-trans" || exit 1'
-su --command - $user 'chmod 755 .st-trans'
-# add shortcut keys
-su --command - $user 'echo "\"~/.st-trans\"" >> ~/.xbindkeysrc'
-su --command - $user 'echo "Alt + t" >> ~/.xbindkeysrc'
-su --command - $user 'echo "\"st-trans -v\"" >> ~/.xbindkeysrc'
-su --command - $user 'echo "Alt + v" >> ~/.xbindkeysrc'
+    su --command - $user 'chmod 755 ~/.st-trans'
+
+    # add shortcut keys
+    if grep -q "~/.st-trans" ~/.xbindkeysrc ;then
+    su --command - $user 'echo "\"~/.st-trans\"" >> ~/.xbindkeysrc'
+    su --command - $user 'echo "Alt + t" >> ~/.xbindkeysrc'
+    fi
+    if grep -q "st-trans -v" ~/.xbindkeysrc ;then
+    su --command - $user 'echo "\"st-trans -v\"" >> ~/.xbindkeysrc'
+    su --command - $user 'echo "Alt + v" >> ~/.xbindkeysrc'
+    fi
 # update xbindkeys to use the new shortcut key
 su --command - $user 'xbindkeys'
+fi
 # send notify to the user
 su --command - $user 'notify-send -t 0 -u critical "تم تثبيت st-trans بنجاح :)" "حدد النص ثم اضغط Alt + t وستظهر الترجمة هنا."'
 exit
