@@ -37,19 +37,18 @@ if ! [ -e ~/.st-trans ] || [ "$1" == "--reset" ]; then
     su --command - $user 'wget -qO ~/.st-trans \
 "https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/.st-trans" || exit 1'
     su --command - $user 'chmod 755 ~/.st-trans'
-
+fi
     # add shortcut keys
-    if grep -q "~/.st-trans" ~/.xbindkeysrc ;then
+    if ! grep -q "~/.st-trans" &> /dev/null ~/.xbindkeysrc ;then
     su --command - $user 'echo "\"~/.st-trans\"" >> ~/.xbindkeysrc'
     su --command - $user 'echo "Alt + t" >> ~/.xbindkeysrc'
     fi
-    if grep -q "st-trans -v" ~/.xbindkeysrc ;then
+    if ! grep -q "st-trans -v" &> /dev/null ~/.xbindkeysrc ;then
     su --command - $user 'echo "\"st-trans -v\"" >> ~/.xbindkeysrc'
     su --command - $user 'echo "Alt + v" >> ~/.xbindkeysrc'
-    fi
 # update xbindkeys to use the new shortcut key
-su --command - $user 'xbindkeys'
-fi
+    su --command - $user 'xbindkeys'
+    fi
 # send notify to the user
 su --command - $user 'notify-send -t 0 -u critical "تم تثبيت st-trans بنجاح :)" "حدد النص ثم اضغط Alt + t وستظهر الترجمة هنا."'
 exit
