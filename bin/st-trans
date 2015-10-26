@@ -6,32 +6,28 @@
 # No Rights Reserved
 
 help () {
-    echo "Usage: st-trans [<OPTIONS>|<[SOURCE]:[TARGET]>]
+    echo -e "Usage: st-trans [<OPTIONS>|<[SOURCE]:[TARGET]>]
 
-Options
--l
-show a list of supported languages and codes.
+Options:
+    -l\t\tshow a list of supported languages and codes.
 
--k
-change shortcut key.
+    -k\t\tchange shortcut key.
 
--h
-print this help and exit.
+    -h\t\tprint this help and exit.
 
--t
-specifies the timeout in seconds at which to expire the translator notifications.
+    -t\t\tspecifies the timeout in seconds at which to expire the translator notifications.
 
--u
-specifies translator notifications urgency level (low, normal, critical) in integers (0, 1, 2) respectively.
+    -u\t\tspecifies translator notifications urgency level (low, normal, critical) in integers (0, 1, 2) respectively.
 
--v
-invert source language with target language. note: you can't use this option when source language set to auto.
+    -v\t\tinvert source language with target language. note: you can't use this option when source language set to auto.
 
--c
-run st-trans in command mode, translate selection when shortcut key pressed (defalt mode).
+    -c\t\trun st-trans in command mode, translate selection when shortcut key pressed (defalt mode).
 
--i
-run st-trans in instant translation mode, translate selection instantly.
+    -i\t\trun st-trans in instant translation mode, translate selection instantly.
+
+    -U\t\tupdate st-trans to latest version.
+
+    -R\t\treinstall st-trans and reset default preferneces.
 
 Language preferences
 [SOURCE]:[TARGET]
@@ -206,6 +202,28 @@ if [ -n "$1" ]; then # options
 	    else
 	        echo 'Command mode already running.'
 	    fi
+
+    #Update st-trans option
+    elif [ "$1" == "-U" ] || [ "$1" == "-R" ]; then
+        echo "Updating..."
+        echo "Downloading the latest version of installer..."
+        #determine OS
+        if cat /usr/lib/os-release | grep -qF 'debian'; then
+            wget --show-progress -qO  ~/st-trans 'https://goo.gl/H64pZP' && chmod 755 ~/st-trans
+        fi
+        if cat /usr/lib/os-release | grep -qF 'fedora'; then 
+            wget --show-progress -qO ~/st-trans 'https://goo.gl/dcgJEe' && chmod 755 ~/st-trans
+        fi
+        if cat /usr/lib/os-release | grep -qF 'arch'; then
+            wget --show-progress -qO ~/st-trans 'https://goo.gl/nqF6vx' && chmod 755 ~/st-trans
+        fi
+        echo "Need to get super privileges:"
+
+        if [ "$1" == "-R" ]; then
+            sudo ~/st-trans --reset
+            exit
+        fi
+        sudo ~/st-trans
     # show help option
     elif [ "$1" == "-h" ]; then
     help
