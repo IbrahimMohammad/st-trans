@@ -7,4 +7,10 @@
 
 # run this script when shortcut key pressed
 
-notify-send -u normal -t 7000 "$(xsel -o)" "$(wget -U "Mozilla/5.0" -qO - "https://translate.google.com/translate_a/single?client=t&sl=en&tl=ar&hl=en&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&dt=t&dt=at&ie=UTF-8&oe=UTF-8&rom=1&srcrom=1&ssel=5&tsel=4&tk=519531|630690&q=$(xsel -o)" | sed 's/....//' | cut -d '"' -f 1)"
+key="trnsl.1.1.20151126T100621Z.111380f547c17fd9.6b59d2581e2f22b5baabfdc9f1faa22b8a091198"
+text="$(xsel -o)"
+source="en"
+target="ar"
+translation="$(wget -U "Mozilla/5.0" -qO - "https://translate.yandex.net/api/v1.5/tr.json/translate?key=$key&text=$text&lang=$source-$target" | cut -d '"' -f 10)"
+# send notification
+notify-send -u normal -t 7000 "$text" "\<a href\=\"https://translate.yandex.com/?text=$text&lang=$source-$target/\"\>$translation\<\/a\>\nTranslate on \<a href\=\"https://translate.google.com/#$source/$target/$text\"\>Google\<\/a\> \<a href\=\"https://www.bing.com/translator/?text=$text&from=$source&to=$target\"\>Bing\<\/a\>\n\<a href\=\"http://translate.yandex.com/\"\>Powered by Yandex.Translator\<\/a\>"
