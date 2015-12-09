@@ -8,7 +8,7 @@ You don't need to open your browser then go to translate website to just transla
 For debian based systems (Debian, Ubuntu, Linux Mint, elementary OS, Kali Linux… etc)
 ```Bash
 wget -O st-trans 'https://goo.gl/H64pZP' && chmod 755 st-trans
-sudo ./st-trans
+sudo -E ./st-trans
 ```
 
 For fedora
