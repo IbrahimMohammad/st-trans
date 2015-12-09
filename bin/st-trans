@@ -5,7 +5,8 @@
 # GitHub repository: https://github.com/IbrahimMohammad/shell_script
 # No Rights Reserved
 
-help () {
+help ()
+{
     echo -e "Usage: st-trans [<OPTIONS>|<[SOURCE]:[TARGET]>]
 
 Options:
@@ -21,13 +22,9 @@ Options:
 
     -v\t\tinvert source language with target language. note: you can't use this option when source language set to auto.
 
-    -c\t\trun st-trans in command mode, translate selection when shortcut key pressed (defalt mode).
+    -i\t\trun st-trans in instant translation mode, translate selection instantly or when shortcut key pressed.
 
-    -i\t\trun st-trans in instant translation mode, translate selection instantly.
-
-    -U\t\tupdate st-trans to latest version.
-
-    -R\t\treinstall st-trans and reset default preferneces.
+    -c\t\trun st-trans in command mode only (deactivate instant translation mode), translate selection when shortcut key pressed (defalt mode).
 
 Language preferences
 [SOURCE]:[TARGET]
@@ -48,55 +45,102 @@ You can use auto as the source language to auto detect source language
 st-trans auto:"
 }
 
-if [ -n "$1" ]; then # options
+adjust_body()
+{
+    # if the current notification server allow hyperlinks
+    if qdbus org.freedesktop.Notifications /org/freedesktop/Notifications GetCapabilities | grep -qF 'hyperlink'; then
+        body=\"\$hyper\"
+    else
+        body=\"\$required\"
+    fi
+}
+
+default_conf()
+{
+    echo "key=\"trnsl.1.1.20151126T100621Z.111380f547c17fd9.6b59d2581e2f22b5baabfdc9f1faa22b8a091198\"
+source=\"en\"
+target=\"ar\"
+urgency=\"normal\"
+timeout=\"7000\"" > $conf
+    adjust_body
+    echo "body="$body"" >> $conf
+}
+
+write_conf()
+{
+    echo "key=\"$key\"
+source=\"$source\"
+target=\"$target\"
+urgency=\"$urgency\"
+timeout=\"$timeout\"
+body="$body"" > $conf
+}
+
+translate()
+{
+    text="$(xsel -o)"
+    translation="$(wget -U "Mozilla/5.0" -qO - "https://translate.yandex.net/api/v1.5/tr.json/translate?key=$key&text=$text&lang=$source-$target" | cut -d '"' -f 10)"
+    # send notification
+    notify-send -u $urgency -t $timeout "$text" "$translation\n$body"
+}
+
+
+# here we go!
+conf=~/.st-transrc
+required="Powered by Yandex.Translate"
+hyper="Translate on  \<a href\=\"https://translate.google.com/#$source/$target/$text\"\>Google\<\/a\>  \<a href\=\"https://www.bing.com/translator/?text=$text&amp;from=$source&amp;to=$target\"\>Bing\<\/a\>\n\<a href\=\"http://translate.yandex.com/\"\>$required\<\/a\>"
+if [ -e $conf ]; then
+    source $conf
+else
+    default_conf
+    source $conf
+fi
+
+if ! [ -n "$1" ]; then
+    translate
+else # options
     # print languages table
     if [ "$1" == "-l" ]; then
-        echo "┌──────────────────────┬───────────────────────┬───────────────────────┐
-│Language Name    Code │Language Name     Code │Language Name     Code │ 
-│──────────────────────│───────────────────────│───────────────────────│ 
-│ Afrikaans      - af  │ Hawaiian        - haw │ Portuguese      - pt  │ 
-│ Albanian       - sq  │ Hebrew          - he  │ Punjabi         - pa  │ 
-│ Amharic        - am  │ Hindi           - hi  │ Romanian        - ro  │ 
-│ Arabic         - ar  │ Hmong           - hmn │ Romansh         - rm  │ 
-│ Armenian       - hy  │ Hungarian       - hu  │ Russian         - ru  │ 
-│ Assamese       - as  │ Icelandic       - is  │ Samoan          - sm  │ 
-│ Azerbaijani    - az  │ Igbo            - ig  │ Scottish Gaelic - gd  │ 
-│ Bashkir        - ba  │ Indonesian      - id  │ Serbian         - sr  │ 
-│ Basque         - eu  │ Interlingue     - ie  │ Sesotho         - st  │ 
-│ Belarusian     - be  │ Irish           - ga  │ Shona           - sn  │ 
-│ Bengali        - bn  │ Italian         - it  │ Sindhi          - sd  │ 
-│ Bosnian        - bs  │ Japanese        - ja  │ Sinhala         - si  │ 
-│ Breton         - br  │ Javanese        - jv  │ Slovak          - sk  │ 
-│ Bulgarian      - bg  │ Kannada         - kn  │ Slovenian       - sl  │ 
-│ Catalan        - ca  │ Kazakh          - kk  │ Somali          - so  │ 
-│ Cebuano        - ceb │ Khmer           - km  │ Spanish         - es  │ 
-│ Cherokee       - chr │ Kinyarwanda     - rw  │ Sundanese       - su  │ 
-│ Chichewa       - ny  │ Korean          - ko  │ Swahili         - sw  │ 
-│ Chinese Simp.  - zh-CN Kurdish         - ku  │ Swedish         - sv  │ 
-│ Chinese Trad.  - zh-TW Kyrgyz          - ky  │ Tajik           - tg  │ 
-│ Corsican       - co  │ Lao             - lo  │ Tamil           - ta  │ 
-│ Croatian       - hr  │ Latin           - la  │ Tatar           - tt  │ 
-│ Czech          - cs  │ Latvian         - lv  │ Telugu          - te  │ 
-│ Danish         - da  │ Lithuanian      - lt  │ Thai            - th  │ 
-│ Dutch          - nl  │ Luxembourgish   - lb  │ Tibetan         - bo  │ 
-│ Dzongkha       - dz  │ Macedonian      - mk  │ Tigrinya        - ti  │ 
-│ English        - en  │ Malagasy        - mg  │ Turkish         - tr  │ 
-│ Esperanto      - eo  │ Malay           - ms  │ Turkmen         - tk  │ 
-│ Estonian       - et  │ Malayalam       - ml  │ Ukrainian       - uk  │ 
-│ Faroese        - fo  │ Maltese         - mt  │ Urdu            - ur  │ 
-│ Fijian         - fj  │ Maori           - mi  │ Uyghur          - ug  │ 
-│ Filipino       - tl  │ Marathi         - mr  │ Uzbek           - uz  │ 
-│ Finnish        - fi  │ Mongolian       - mn  │ Vietnamese      - vi  │ 
-│ French         - fr  │ Myanmar         - my  │ Volapük         - vo  │ 
-│ Galician       - gl  │ Nepali          - ne  │ Welsh           - cy  │ 
-│ Georgian       - ka  │ Norwegian       - no  │ Western Frisian - fy  │ 
-│ German         - de  │ Occitan         - oc  │ Wolof           - wo  │ 
-│ Greek          - el  │ Oriya           - or  │ Xhosa           - xh  │ 
-│ Guarani        - gn  │ Oromo           - om  │ Yiddish         - yi  │ 
-│ Gujarati       - gu  │ Pashto          - ps  │ Yoruba          - yo  │ 
-│ Haitian Creole - ht  │ Persian         - fa  │ Zulu            - zu  │ 
-│ Hausa          - ha  │ Polish          - pl  │                       │
-└──────────────────────┴───────────────────────┴───────────────────────┘"
+        echo "┌──────────────────────┬───────────────────────┐
+│Language Name    Code │Language Name     Code │
+│──────────────────────│───────────────────────│
+│ Afrikaans      - af  │ Kazakh          - kk  │
+│ Albanian       - sq  │ Kirghiz         - ky  │
+│ Arabic         - ar  │ Korean          - ko  │
+│ Armenian       - hy  │ Latin           - la  │
+│ Azerbaijani    - az  │ Latvian         - lv  │
+│ Bashkir        - ba  │ Lithuanian      - lt  │
+│ Basque         - eu  │ Macedonian      - mk  │
+│ Belarusian     - be  │ Malagasy        - mg  │
+│ Bosnian        - bs  │ Malay           - ms  │
+│ Bulgarian      - bg  │ Maltese         - mt  │
+│ Catalan        - ca  │ Mongolian       - mn  │
+│ Chinese        - zh  │ Norwegian       - no  │
+│ Croatian       - hr  │ Persian         - fa  │
+│ Czech          - cs  │ Polish          - pl  │
+│ Danish         - da  │ Portuguese      - pt  │
+│ Dutch          - nl  │ Romanian        - ro  │
+│ English        - en  │ Russian         - ru  │
+│ Estonian       - et  │ Serbian         - sr  │
+│ Finnish        - fi  │ Slovak          - sk  │
+│ French         - fr  │ Slovenian       - sl  │
+│ Galician       - gl  │ Spanish         - es  │
+│ Georgian       - ka  │ Swahili         - sw  │
+│ German         - de  │ Swedish         - sv  │
+│ Greek          - el  │ Tagalog         - tl  │
+│ Haitian        - ht  │ Tajik           - tg  │
+│ Hebrew         - he  │ Tatar           - tt  │
+│ Hungarian      - hu  │ Thai            - th  │
+│ Icelandic      - is  │ Turkish         - tr  │
+│ Indonesian     - id  │ Ukrainian       - uk  │
+│ Irish          - ga  │ Uzbek           - uz  │
+│ Italian        - it  │ Vietnamese      - vi  │
+│ Japanese       - ja  │ Welsh           - cy  │
+└──────────────────────┴───────────────────────┘"
+    # auto adjust translation view
+    elif [ "$1" == "-a" ]; then
+        adjust_body
+        write_conf
     # change languages
     elif echo "$1" | grep -qF ':'; then
         curr_source_lang="$(cut -sd \& -f 2 ~/.st-trans)"
@@ -114,7 +158,7 @@ if [ -n "$1" ]; then # options
             sed -i "s/$curr_source_lang/sl=$new_source_lang/" ~/.st-trans
 		fi
         # is there are a target language?
-		if [ -n "$new_target_lang" ]; then
+        if [ -n "$new_target_lang" ]; then
             # check language code
             if ! grep -q "\- $new_target_lang " /usr/bin/st-trans  ; then
                 echo "\"$new_target_lang\" isn't a supported language code. please take a look at supported language table with st-trans -l"
@@ -192,46 +236,22 @@ if [ -n "$1" ]; then # options
         if pgrep -l st-trans-daemon &> /dev/null; then
 	        echo 'Instant translation mode already running.'
 	    else
-	        setsid st-trans-daemon &> /dev/null < /dev/null&
+	        setsid st-trans-daemon < /dev/null &> /dev/null&
             echo 'Instant translation mode activated.'
 	    fi
-    # command mode
+    # command mode only
     elif [ "$1" == "-c" ]; then
         if killall st-trans-daemon &> /dev/null; then
-	        echo 'Command mode activated.'
+	        echo 'Instant translation mode deactivated.'
 	    else
-	        echo 'Command mode already running.'
+	        echo 'Instant translation mode already deactivated.'
 	    fi
-
-    #Update st-trans option
-    elif [ "$1" == "-U" ] || [ "$1" == "-R" ]; then
-        echo "Updating..."
-        echo "Downloading the latest version of installer..."
-        #determine OS
-        if cat /usr/lib/os-release | grep -qF 'debian'; then
-            wget --show-progress -qO  ~/st-trans 'https://goo.gl/H64pZP' && chmod 755 ~/st-trans
-        fi
-        if cat /usr/lib/os-release | grep -qF 'fedora'; then 
-            wget --show-progress -qO ~/st-trans 'https://goo.gl/dcgJEe' && chmod 755 ~/st-trans
-        fi
-        if cat /usr/lib/os-release | grep -qF 'arch'; then
-            wget --show-progress -qO ~/st-trans 'https://goo.gl/nqF6vx' && chmod 755 ~/st-trans
-        fi
-        echo "Need to get super privileges:"
-
-        if [ "$1" == "-R" ]; then
-            sudo ~/st-trans --reset
-            exit
-        fi
-        sudo ~/st-trans
     # show help option
     elif [ "$1" == "-h" ]; then
-    help
+        help
     # more options with elif
     else
-    help
-    exit 1
+        help
+        exit 1
     fi
-else
-help
 fi

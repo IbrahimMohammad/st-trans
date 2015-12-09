@@ -10,11 +10,14 @@
 # if non root user run the script
 if [ $EUID -ne 0 ]; then
     echo 'This script must be run as root. use command sudo ./st-trans or su -c ./st-trans to run it.'
-    echo 'يجب تشغيل هذا السكربت كمستخدم جذر. استخدم الأمر sudo ./st-trans أو su -c ./st-trans لتشغيله.'
     exit 1
 fi
 # install depends
 apt-get --assume-yes install libnotify-bin xsel xbindkeys || exit 1
+# if the current notification server doesn't allow hyperlinks
+if ! qdbus org.freedesktop.Notifications /org/freedesktop/Notifications GetCapabilities | grep -qF 'hyperlink'; then
+    apt-get --assume-yes install zenity
+fi
 # download st-trans
 wget -qO /usr/bin/st-trans \
 "https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/bin/st-trans" || exit 1
@@ -23,29 +26,29 @@ chmod 755 /usr/bin/st-trans
 wget -qO /usr/bin/st-trans-daemon \
 "https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/bin/st-trans-daemon" || exit 1
 chmod 755 /usr/bin/st-trans-daemon
+# autostart auto adjust translation view
+wget -qO /etc/xdg/autostart/st-trans-view.desktop \
+"https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/autostart/st-trans-view.desktop" || exit 1
 # get logged in username
 if [ -n "$SUDO_USER" ]; then
     user=$SUDO_USER
 else
     user=$USERNAME
 fi
-
-#add reset option
-
-if ! [ -e ~/.st-trans ] ; then
-    # download .st-trans
-    su --command - $user 'wget -qO ~/.st-trans \
-"https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/.st-trans" || exit 1'
-    su --command - $user 'chmod 755 ~/.st-trans'
-
-    # add shortcut keys
-    su --command - $user 'echo "\"~/.st-trans\"" >> ~/.xbindkeysrc'
+# download .st-trans
+su --command - $user 'wget -qO ~/.st-transrc \
+"https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/.st-transrc" || exit 1'
+# add shortcut keys
+if ! grep -qF 'st-trans' ~/.xbindkeysrc &> /dev/null;
+    su --command - $user 'echo "\"st-trans\"" >> ~/.xbindkeysrc'
     su --command - $user 'echo "Alt + t" >> ~/.xbindkeysrc'
     su --command - $user 'echo "\"st-trans -v\"" >> ~/.xbindkeysrc'
     su --command - $user 'echo "Alt + v" >> ~/.xbindkeysrc'
-# update xbindkeys to use the new shortcut key
-    su --command - $user 'xbindkeys'
 fi
+# update xbindkeys to use the new shortcut key
+su --command - $user 'xbindkeys'
+# auto adjust translation view
+su --command - $user 'st-trans -a'
 # send notify to the user
-su --command - $user 'notify-send -t 0 -u critical "تم تثبيت st-trans بنجاح :)" "حدد النص ثم اضغط Alt + t وستظهر الترجمة هنا."'
+su --command - $user 'notify-send -t 0 -u critical "st-trans has been installed successfully" "select any text then press Alt + t to translate it"'
 exit

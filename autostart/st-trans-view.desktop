@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=st-trans-view
+Comment=auto adjust translation view
+Exec=st-trans -a
+Terminal=false
+Type=Application
