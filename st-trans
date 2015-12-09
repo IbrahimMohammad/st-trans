@@ -32,7 +32,7 @@ else
     user=$USERNAME
 fi
 # add shortcut keys
-if ! grep -qF 'st-trans' ~/.xbindkeysrc &> /dev/null;
+if ! grep -qF 'st-trans' ~/.xbindkeysrc &> /dev/null; then
     su --command - $user 'echo "\"st-trans\"" >> ~/.xbindkeysrc'
     su --command - $user 'echo "Alt + t" >> ~/.xbindkeysrc'
     su --command - $user 'echo "\"st-trans -v\"" >> ~/.xbindkeysrc'
