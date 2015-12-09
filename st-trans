@@ -35,9 +35,6 @@ if [ -n "$SUDO_USER" ]; then
 else
     user=$USERNAME
 fi
-# download .st-trans
-su --command - $user 'wget -qO ~/.st-transrc \
-"https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/.st-transrc" || exit 1'
 # add shortcut keys
 if ! grep -qF 'st-trans' ~/.xbindkeysrc &> /dev/null;
     su --command - $user 'echo "\"st-trans\"" >> ~/.xbindkeysrc'
@@ -47,8 +44,6 @@ if ! grep -qF 'st-trans' ~/.xbindkeysrc &> /dev/null;
 fi
 # update xbindkeys to use the new shortcut key
 su --command - $user 'xbindkeys'
-# auto adjust translation view
-su --command - $user 'st-trans -a'
 # send notify to the user
 su --command - $user 'notify-send -t 0 -u critical "st-trans has been installed successfully" "select any text then press Alt + t to translate it"'
 exit
