@@ -14,10 +14,6 @@ if [ $EUID -ne 0 ]; then
 fi
 # install depends
 apt-get --assume-yes install libnotify-bin xsel xbindkeys || exit 1
-# if the current notification server doesn't allow hyperlinks
-if ! qdbus org.freedesktop.Notifications /org/freedesktop/Notifications GetCapabilities | grep -qF 'hyperlink'; then
-    apt-get --assume-yes install zenity
-fi
 # download st-trans
 wget -qO /usr/bin/st-trans \
 "https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/bin/st-trans" || exit 1
