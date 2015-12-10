@@ -47,7 +47,7 @@ st-trans auto:"
 
 adjust_body()
 {
-    if [ $1 = start_test ]; then
+    if [[ $1 = start_test ]]; then
     # wait untill Notification server start or a minute passed
     for (( i=0; ! dbus-send --session --dest=org.freedesktop.DBus --type=method_call --print-reply \
                 /org/freedesktop/DBus org.freedesktop.DBus.ListNames | grep -qF 'org.freedesktop.Notifications' && i != 12; ++i )); do
@@ -155,7 +155,7 @@ else # options
 └──────────────────────┴───────────────────────┘"
     # auto adjust translation view
     elif [ "$1" == "-a" ]; then
-        if [ $2 = start_test ]; then
+        if [[ $2 = start_test ]]; then
             adjust_body start_test
         else
             adjust_body
