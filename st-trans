@@ -25,21 +25,5 @@ chmod 755 /usr/bin/st-trans-daemon
 # autostart auto adjust translation view
 wget -qO /etc/xdg/autostart/st-trans-view.desktop \
 "https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/autostart/st-trans-view.desktop" || exit 1
-# get logged in username
-if [ -n "$SUDO_USER" ]; then
-    user=$SUDO_USER
-else
-    user=$USERNAME
-fi
-# add shortcut keys
-if ! grep -qF 'st-trans' ~/.xbindkeysrc &> /dev/null; then
-    su --command - $user 'echo "\"st-trans\"" >> ~/.xbindkeysrc'
-    su --command - $user 'echo "Alt + t" >> ~/.xbindkeysrc'
-    su --command - $user 'echo "\"st-trans -v\"" >> ~/.xbindkeysrc'
-    su --command - $user 'echo "Alt + v" >> ~/.xbindkeysrc'
-fi
-# update xbindkeys to use the new shortcut key
-su --command - $user 'xbindkeys'
-# send notify to the user
-su --command - $user 'notify-send -t 0 -u critical "st-trans has been installed successfully" "select any text then press Alt + t to translate it"'
+echo 'st-trans has been installed successfully. run command st-trans just for the first time after the installation. then you can use the shortcut key Alt + t to translate any selected text at any time :)'
 exit

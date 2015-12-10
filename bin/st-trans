@@ -47,8 +47,16 @@ st-trans auto:"
 
 adjust_body()
 {
+    if [ $1 = start_test ]; then
+    # wait untill Notification server start or a minute passed
+    for (( i=0; ! dbus-send --session --dest=org.freedesktop.DBus --type=method_call --print-reply \
+                /org/freedesktop/DBus org.freedesktop.DBus.ListNames | grep -qF 'org.freedesktop.Notifications' && i != 12; ++i )); do
+        sleep 5
+    done
+    fi
     # if the current notification server allow hyperlinks
-    if qdbus org.freedesktop.Notifications /org/freedesktop/Notifications GetCapabilities | grep -qF 'hyperlink'; then
+    if dbus-send --session --dest=org.freedesktop.Notifications --type=method_call --print-reply \
+        /org/freedesktop/Notifications org.freedesktop.Notifications.GetCapabilities | grep -qF 'hyperlink'; then
         body=\"\$hyper\"
     else
         body=\"\$required\"
@@ -62,8 +70,16 @@ source=\"en\"
 target=\"ar\"
 urgency=\"normal\"
 timeout=\"7000\"" > $conf
-    adjust_body
-    echo "body="$body"" >> $conf
+    adjust_body && echo "body="$body"" >> $conf
+    # shortcut keys
+    if ! grep -qF 'st-trans' ~/.xbindkeysrc &> /dev/null; then
+        echo "\"st-trans\"
+Alt + t
+\"st-trans -v\"
+Alt + v" >> ~/.xbindkeysrc
+        # update xbindkeys to use the new shortcut key
+        xbindkeys
+    fi
 }
 
 write_conf()
@@ -87,14 +103,14 @@ translate()
 
 # here we go!
 conf=~/.st-transrc
+required="Powered by Yandex.Translate"
+hyper="Translate on  \<a href\=\"https://translate.google.com/#$source/$target/$text\"\>Google\<\/a\>  \<a href\=\"https://www.bing.com/translator/?text=$text&amp;from=$source&amp;to=$target\"\>Bing\<\/a\>\n\<a href\=\"http://translate.yandex.com/\"\>$required\<\/a\>"
 if [ -e $conf ]; then
     source $conf
 else
     default_conf
     source $conf
 fi
-required="Powered by Yandex.Translate"
-hyper="Translate on  \<a href\=\"https://translate.google.com/#$source/$target/$text\"\>Google\<\/a\>  \<a href\=\"https://www.bing.com/translator/?text=$text&amp;from=$source&amp;to=$target\"\>Bing\<\/a\>\n\<a href\=\"http://translate.yandex.com/\"\>$required\<\/a\>"
 
 if ! [ -n "$1" ]; then
     translate
@@ -139,8 +155,11 @@ else # options
 └──────────────────────┴───────────────────────┘"
     # auto adjust translation view
     elif [ "$1" == "-a" ]; then
-        adjust_body
-        write_conf
+        if [ $2 = start_test ]; then
+            adjust_body start_test
+        else
+            adjust_body
+        fi && write_conf
     # change languages
     elif echo "$1" | grep -qF ':'; then
         curr_source_lang="$(cut -sd \& -f 2 ~/.st-trans)"
