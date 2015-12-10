@@ -48,11 +48,13 @@ st-trans auto:"
 adjust_body()
 {
     if [[ $1 = start_test ]]; then
-    # wait untill Notification server start or a minute passed
-    for (( i=0; ! dbus-send --session --dest=org.freedesktop.DBus --type=method_call --print-reply \
-                /org/freedesktop/DBus org.freedesktop.DBus.ListNames | grep -qF 'org.freedesktop.Notifications' && i != 12; ++i )); do
-        sleep 5
-    done
+        # wait untill Notification server start or a minute passed
+        declare -i i=0
+        while ! dbus-send --session --dest=org.freedesktop.DBus --type=method_call --print-reply \
+            /org/freedesktop/DBus org.freedesktop.DBus.ListNames | grep -qF 'org.freedesktop.Notifications' && [[ $i != 12 ]]; do
+            sleep 5
+            i+=1
+        done
     fi
     # if the current notification server allow hyperlinks
     if dbus-send --session --dest=org.freedesktop.Notifications --type=method_call --print-reply \
