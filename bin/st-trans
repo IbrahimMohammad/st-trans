@@ -59,9 +59,9 @@ adjust_body()
     # if the current notification server allow hyperlinks
     if dbus-send --session --dest=org.freedesktop.Notifications --type=method_call --print-reply \
         /org/freedesktop/Notifications org.freedesktop.Notifications.GetCapabilities | grep -qF 'hyperlink'; then
-        body=\"\$hyper\"
+        body=\"hyper\"
     else
-        body=\"\$required\"
+        body=\"required\"
     fi
 }
 
@@ -98,6 +98,14 @@ translate()
 {
     text="$(xsel -o)"
     translation="$(wget -U "Mozilla/5.0" -qO - "https://translate.yandex.net/api/v1.5/tr.json/translate?key=$key&text=$text&lang=$source-$target" | cut -d '"' -f 10)"
+    required="Powered by Yandex.Translate"
+    hyper="Translate on  \<a href\=\"https://translate.google.com/#$source/$target/$text\"\>Google\<\/a\>  \<a href\=\"https://www.bing.com/translator/?text=$text&amp;from=$source&amp;to=$target\"\>Bing\<\/a\>\n\<a href\=\"http://translate.yandex.com/\"\>$required\<\/a\>"
+    case $body in
+        hyper) body=$hyper
+            ;;
+        required) body=$required
+            ;;
+    esac
     # send notification
     notify-send -u $urgency -t $timeout "$text" "$translation\n$body"
 }
@@ -105,8 +113,6 @@ translate()
 
 # here we go!
 conf=~/.st-transrc
-required="Powered by Yandex.Translate"
-hyper="Translate on  \<a href\=\"https://translate.google.com/#$source/$target/$text\"\>Google\<\/a\>  \<a href\=\"https://www.bing.com/translator/?text=$text&amp;from=$source&amp;to=$target\"\>Bing\<\/a\>\n\<a href\=\"http://translate.yandex.com/\"\>$required\<\/a\>"
 if [ -e $conf ]; then
     source $conf
 else
