@@ -12,12 +12,18 @@ if [ $EUID -ne 0 ]; then
     echo 'This script must be run as root. use command sudo ./st-trans or su -c ./st-trans to run it.'
     exit 1
 fi
-# install depends
-apt-get --assume-yes install libnotify-bin xsel xbindkeys || exit 1
 # download st-trans
 wget -qO /usr/bin/st-trans \
 "https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/bin/st-trans" || exit 1
 chmod 755 /usr/bin/st-trans
+# install depends
+if [[ $1 = -no-xbk ]]
+    apt-get --assume-yes install libnotify-bin xsel || exit 1
+    sed -i '/# installed with/a \ \ \ \ with_xbk=no' /usr/bin/st-trans
+else
+    apt-get --assume-yes install libnotify-bin xsel xbindkeys || exit 1
+    sed -i '/# installed with/a \ \ \ \ with_xbk=yes' /usr/bin/st-trans
+fi
 # download daemon
 wget -qO /usr/bin/st-trans-daemon \
 "https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/bin/st-trans-daemon" || exit 1
@@ -25,5 +31,9 @@ chmod 755 /usr/bin/st-trans-daemon
 # autostart auto adjust translation view
 wget -qO /etc/xdg/autostart/st-trans-view.desktop \
 "https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/autostart/st-trans-view.desktop" || exit 1
-echo 'st-trans has been installed successfully. run command st-trans just for the first time after the installation. then you can use the shortcut key Alt + t to translate any selected text at any time :)'
+echo 'st-trans has been installed successfully.
+run command st-trans just for the first time after the installation.
+then you can use the shortcut key Alt + t to translate any selected text at any time.
+or you can bind any shortcut key from your desktop settings to any option st-trans provide.
+take a look at st-trans -h to see all options.'
 exit

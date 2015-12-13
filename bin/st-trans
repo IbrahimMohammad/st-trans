@@ -7,12 +7,16 @@
 
 help ()
 {
-    echo -e "Usage: st-trans [<OPTIONS>|<[SOURCE]:[TARGET]>]
+    echo -e "st-trans translate any selected text using Yandex translate.
+st-trans without any option will send the last selected text translation
+as a notification message.
+
+Usage: st-trans [<OPTIONS>|<[SOURCE]:[TARGET]>]
 
 Options:
     -l\t show a list of supported languages and codes.
 
-    -k\t change shortcut key.
+    -k\t change Yandex Translate API key.
 
     -h\t print this help and exit.
 
@@ -30,6 +34,15 @@ Options:
       \t running in this mode, this option will deactivate instant
       \t translation and translate selection only when shortcut key pressed.
 
+    -a\t auto adjust translation view, with or without hyperlinks
+      \t depending on your notification server.
+
+    -d\t use the default rc files. set all options to it's default values.
+
+    -xbk  activate xbindkeys shortcut keys.
+    
+    -no-xbk deactivate xbindkeys shortcut keys.
+    
 Language preferences:
 [SOURCE]:[TARGET]
 To change source and target language use
@@ -67,22 +80,33 @@ adjust_body()
 
 default_conf()
 {
+    # installed with
+    # .xbindkeysrc
+    if [[ $with_xbk = yes ]]; then
+        xbk=yes
+        xbindkeysrc
+    else
+        xbk=no
+    fi
+    # .st-trancrc
     echo "key=\"trnsl.1.1.20151126T100621Z.111380f547c17fd9.6b59d2581e2f22b5baabfdc9f1faa22b8a091198\"
 source=\"en\"
 target=\"ar\"
 urgency=\"normal\"
-timeout=\"7000\"" > $conf
+timeout=\"7000\"
+xbk=\"$xbk\"" > $conf
     adjust_body && echo "body="$body"" >> $conf
-    # shortcut keys
-    if ! grep -qF 'st-trans' ~/.xbindkeysrc &> /dev/null; then
+}
+
+xbindkeysrc()
+{
+    if ! grep -qF 'st-trans' $xbk_conf &> /dev/null; then
         echo "\"st-trans\"
 Alt + t
 \"st-trans -i\"
 Alt + i
 \"st-trans -v\"
-Alt + v" >> ~/.xbindkeysrc
-        # update xbindkeys to use the new shortcut key
-        xbindkeys
+Alt + v" >> $xbk_conf && xbindkeys
     fi
 }
 
@@ -93,6 +117,7 @@ source=\"$source\"
 target=\"$target\"
 urgency=\"$urgency\"
 timeout=\"$timeout\"
+xbk=\"$xbk\"
 body=\"$body\"" > $conf
 }
 
@@ -128,12 +153,13 @@ notify()
 
 # here we go!
 conf=~/.st-transrc
-if [ -e $conf ]; then
-    source $conf
-else
+xbk_conf=~/.xbindkeysrc
+if ! [ -e $conf ]; then
     default_conf
-    source $conf
+else
+    xbindkeysrc
 fi
+source $conf
 
 if ! [ -n "$1" ]; then
     translate
@@ -209,18 +235,10 @@ else # options
             target=$new_target
             write_conf
 		fi
-    # change shortcut key
+    # change API key
     elif [ "$1" == "-k" ]; then
-        echo "Please press combination of keys to set your new shortcut key"
-        new_key="$(xbindkeys -k | sed -n '$p')"
-        # check if user enter new shortcut key
-        if [ "$new_key" == 'in $HOME/.xbindkeysrc to bind a key.' ]; then
-            echo "nothing changed"
-        else
-            curr_key="$(sed -n '/\"st-trans\"/{n;p;}' ~/.xbindkeysrc)"
-            sed -i "s/$curr_key/$new_key/" ~/.xbindkeysrc
-            xbindkeys
-        fi
+        key=$2
+        write_conf
     # invert source language with target language
     elif [ "$1" == "-v" ]; then
         if [[ $source = auto ]]; then
@@ -282,6 +300,20 @@ else # options
 	        setsid st-trans-daemon < /dev/null &> /dev/null&
             notify 'Instant translation mode activated.'
 	    fi
+    # activate xbindkeys shortcut keys.
+    elif [[ $1 = -xbk ]]; then
+        xbindkeysrc
+        xbk=yes
+        write_conf
+    # deactivate xbindkeys shortcut keys.
+    elif [[ $1 = -no-xbk ]]; then
+        sed -i '/"st-trans/{n;d}' $xbk_conf
+        sed -i '/"st-trans/d' $xbk_conf
+        killall -HUP xbindkeys &> /dev/null
+        xbk=no
+        write_conf
+    elif [[ $1 = -d ]]; then
+        default_conf
     # show help option
     elif [ "$1" == "-h" ]; then
         help
