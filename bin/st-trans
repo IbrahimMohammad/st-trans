@@ -10,39 +10,39 @@ help ()
     echo -e "Usage: st-trans [<OPTIONS>|<[SOURCE]:[TARGET]>]
 
 Options:
-    -l\t\tshow a list of supported languages and codes.
+    -l\t show a list of supported languages and codes.
 
-    -k\t\tchange shortcut key.
+    -k\t change shortcut key.
 
-    -h\t\tprint this help and exit.
+    -h\t print this help and exit.
 
-    -t\t\tspecifies the timeout in seconds at which to expire the translator notifications.
+    -t\t specifies the timeout in seconds at which to expire the translator
+      \t notifications.
 
-    -u\t\tspecifies translator notifications urgency level (low, normal, critical) in integers (0, 1, 2) respectively.
+    -u\t specifies translator notifications urgency level (low, normal,
+      \t critical) in integers (0, 1, 2) respectively.
 
-    -v\t\tinvert source language with target language. note: you can't use this option when source language set to auto.
+    -v\t invert source language with target language. note: you can't
+      \t use this option when source language set to auto.
 
-    -i\t\trun st-trans in instant translation mode, translate selection instantly or when shortcut key pressed.
+      \t run st-trans in instant translation mode, translate selection
+    -i\t instantly or when shortcut key pressed. when st-trans already
+      \t running in this mode, this option will deactivate instant
+      \t translation and translate selection only when shortcut key pressed.
 
-    -c\t\trun st-trans in command mode only (deactivate instant translation mode), translate selection when shortcut key pressed (defalt mode).
-
-Language preferences
+Language preferences:
 [SOURCE]:[TARGET]
 To change source and target language use
 SOURCE-CODE:TARGET-CODE
 For example to translate from English to French use this command
 st-trans en:fr
-
-Also you can change just one language either source by
-SOURCE:
-For example
-st-trans en:
-or target
-:TARGET
-For example
-st-trans :fr
 You can use auto as the source language to auto detect source language
-st-trans auto:"
+st-trans auto:fr
+
+Also you can change just one language either source by SOURCE: for example
+st-trans en:
+or target by :TARGET for example
+st-trans :fr"
 }
 
 adjust_body()
@@ -77,6 +77,8 @@ timeout=\"7000\"" > $conf
     if ! grep -qF 'st-trans' ~/.xbindkeysrc &> /dev/null; then
         echo "\"st-trans\"
 Alt + t
+\"st-trans -i\"
+Alt + i
 \"st-trans -v\"
 Alt + v" >> ~/.xbindkeysrc
         # update xbindkeys to use the new shortcut key
@@ -91,13 +93,18 @@ source=\"$source\"
 target=\"$target\"
 urgency=\"$urgency\"
 timeout=\"$timeout\"
-body="$body"" > $conf
+body=\"$body\"" > $conf
 }
 
 translate()
 {
     text="$(xsel -o)"
-    translation="$(wget -U "Mozilla/5.0" -qO - "https://translate.yandex.net/api/v1.5/tr.json/translate?key=$key&text=$text&lang=$source-$target" | cut -d '"' -f 10)"
+    if [[ $source = auto ]]; then
+        lang=$target
+    else
+        lang=$source-$target
+    fi
+    translation="$(wget -U "Mozilla/5.0" -qO - "https://translate.yandex.net/api/v1.5/tr.json/translate?key=$key&text=$text&lang=$lang" | cut -d '"' -f 10)"
     required="Powered by Yandex.Translate"
     hyper="Translate on  \<a href\=\"https://translate.google.com/#$source/$target/$text\"\>Google\<\/a\>  \<a href\=\"https://www.bing.com/translator/?text=$text&amp;from=$source&amp;to=$target\"\>Bing\<\/a\>\n\<a href\=\"http://translate.yandex.com/\"\>$required\<\/a\>"
     case $body in
@@ -110,6 +117,14 @@ translate()
     notify-send -u $urgency -t $timeout "$text" "$translation\n$body"
 }
 
+notify()
+{
+    if [[ $1 = error ]]; then
+        notify-send -u critical -t 0 'st-trans' "$2"
+    else
+        notify-send 'st-trans' "$1"
+    fi
+}
 
 # here we go!
 conf=~/.st-transrc
@@ -170,29 +185,29 @@ else # options
         fi && write_conf
     # change languages
     elif echo "$1" | grep -qF ':'; then
-        curr_source_lang="$(cut -sd \& -f 2 ~/.st-trans)"
-        curr_target_lang="$(cut -sd \& -f 3 ~/.st-trans)"
-        new_source_lang="$(echo "$1" | cut -sd \: -f 1)"
-        new_target_lang="$(echo "$1" | cut -sd \: -f 2)"
+        new_source="$(echo "$1" | cut -sd ':' -f 1)"
+        new_target="$(echo "$1" | cut -sd ':' -f 2)"
         # is there are a source language?
-		if [ -n "$new_source_lang" ]; then
+		if [ -n "$new_source" ]; then
             # check language code
-            if ! grep -q "\- $new_source_lang " /usr/bin/st-trans  &&  [ "$new_source_lang" != "auto" ]; then
-                    echo "\"$new_source_lang\" isn't a supported language code. please take a look at language table with st-trans -l"
+            if ! grep -q "\- $new_source " /usr/bin/st-trans  &&  [ "$new_source" != "auto" ]; then
+                    echo "\"$new_source\" isn't a supported language code. please take a look at languages table with st-trans -l"
                     exit 1
             fi
             # change source language
-            sed -i "s/$curr_source_lang/sl=$new_source_lang/" ~/.st-trans
-		fi
+            source=$new_source
+            write_conf
+        fi
         # is there are a target language?
-        if [ -n "$new_target_lang" ]; then
+        if [ -n "$new_target" ]; then
             # check language code
-            if ! grep -q "\- $new_target_lang " /usr/bin/st-trans  ; then
-                echo "\"$new_target_lang\" isn't a supported language code. please take a look at supported language table with st-trans -l"
+            if ! grep -q "\- $new_target " /usr/bin/st-trans; then
+                echo "\"$new_target\" isn't a supported language code. please take a look at supported languages table with st-trans -l"
                 exit 1
             fi
             # change target language
-            sed -i "s/$curr_target_lang/tl=$new_target_lang/" ~/.st-trans
+            target=$new_target
+            write_conf
 		fi
     # change shortcut key
     elif [ "$1" == "-k" ]; then
@@ -200,22 +215,23 @@ else # options
         new_key="$(xbindkeys -k | sed -n '$p')"
         # check if user enter new shortcut key
         if [ "$new_key" == 'in $HOME/.xbindkeysrc to bind a key.' ]; then
-            echo "nothing change"
+            echo "nothing changed"
         else
-            curr_key="$(sed -n '/\~\/\.st-trans/{n;p;}' ~/.xbindkeysrc)"
+            curr_key="$(sed -n '/\"st-trans\"/{n;p;}' ~/.xbindkeysrc)"
             sed -i "s/$curr_key/$new_key/" ~/.xbindkeysrc
             xbindkeys
-        fi	
+        fi
     # invert source language with target language
     elif [ "$1" == "-v" ]; then
-        curr_source_lang_code="$(cut -sd \& -f 2 ~/.st-trans | cut -sd \= -f 2)" # only language code without "sl="
-        if [ "$curr_source_lang_code" == "auto" ]; then
-            notify-send -t 0 -u critical "Source language set to auto so i can't invert it." "Please change source language to any supported language so i can invert it for you."
+        if [[ $source = auto ]]; then
+            notify error "Sorry, source language is set as auto so you can't invert it.\nPlease change source language to any supported language to be able to invert it with the target language."
             exit 1
         fi
-        curr_target_lang_code="$(cut -sd \& -f 3 ~/.st-trans | cut -sd \= -f 2)" # only language code without "tl="
         # invert
-        sed -i -e "s/sl=$curr_source_lang_code/sl=$curr_target_lang_code/" -e "s/tl=$curr_target_lang_code/tl=$curr_source_lang_code/" ~/.st-trans
+        temp=$source
+        source=$target
+        target=$temp
+        write_conf
     # change timeout period
     elif [ "$1" == "-t" ]; then
         # ensure that $2 exist
@@ -225,12 +241,12 @@ else # options
         fi
         # check that $2 is integer
         if ! [ "$2" -eq "$2" ] &> /dev/null; then
-            echo 'Sorry integers only.'
+            echo 'Sorry, integers only.'
+            help
             exit 1
         fi
-        curr_timeout=$(tail -n 1 ~/.st-trans | cut -sd ' ' -f 5)
-        new_timeout=$(($2*1000))
-        sed -i "s/$curr_timeout/$new_timeout/" ~/.st-trans
+        timeout=$(($2*1000))
+        write_conf
     # change urgency level:
     elif [ "$1" == "-u" ]; then
 		# ensure that $2 exist
@@ -240,38 +256,31 @@ else # options
         fi
 		# check that $2 is integer
         if ! [ "$2" -eq "$2" ] &> /dev/null; then
-            echo "Sorry integers only"
+            echo "Sorry, integers only"
+            help
             exit 1
         fi
         case $2 in
-            0)  new_level='low'
+            0)  urgency=low
                 ;;
-            1)  new_level='normal'
+            1)  urgency=normal
                 ;;
-            2)  new_level='critical'
+            2)  urgency=critical
                 ;;
             *)  echo "invalid number."
                 help
                 exit 1
                 ;;
         esac
-        curr_level=$(tail -n 1 ~/.st-trans | cut -sd ' ' -f 3)
-        sed -i "s/$curr_level/$new_level/" ~/.st-trans
+        write_conf
     # instant translation mode
     elif [ "$1" == "-i" ]; then
-        # check if the daemon already running if not run it
-        if pgrep -l st-trans-daemon &> /dev/null; then
-	        echo 'Instant translation mode already running.'
+        # if the daemon already running close it if not run it
+        if killall st-trans-daemon &> /dev/null; then
+            notify 'Instant translation mode deactivated.'
 	    else
 	        setsid st-trans-daemon < /dev/null &> /dev/null&
-            echo 'Instant translation mode activated.'
-	    fi
-    # command mode only
-    elif [ "$1" == "-c" ]; then
-        if killall st-trans-daemon &> /dev/null; then
-	        echo 'Instant translation mode deactivated.'
-	    else
-	        echo 'Instant translation mode already deactivated.'
+            notify 'Instant translation mode activated.'
 	    fi
     # show help option
     elif [ "$1" == "-h" ]; then
