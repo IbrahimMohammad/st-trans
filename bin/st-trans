@@ -123,15 +123,15 @@ body=\"$body\"" > $conf
 
 translate()
 {
-    text="$(xsel -o)"
+    text
     if [[ $source = auto ]]; then
         lang=$target
     else
         lang=$source-$target
     fi
-    translation="$(wget -U "Mozilla/5.0" -qO - "https://translate.yandex.net/api/v1.5/tr.json/translate?key=$key&text=$text&lang=$lang" | sed 's/.*\[\"//' | sed 's/...$//')"
+    translation
     required="Powered by Yandex.Translate"
-    hyper="Translate on  \<a href\=\"https://translate.google.com/#$source/$target/$text\"\>Google\<\/a\>  \<a href\=\"https://www.bing.com/translator/?text=$text&amp;from=$source&amp;to=$target\"\>Bing\<\/a\>\n\<a href\=\"http://translate.yandex.com/\"\>$required\<\/a\>"
+    hyper="Translate on  \<a href\=\"https://translate.google.com/#$source/$target/$send_text\"\>Google\<\/a\>  \<a href\=\"https://www.bing.com/translator/?text=$send_text&amp;from=$source&amp;to=$target\"\>Bing\<\/a\>\n\<a href\=\"http://translate.yandex.com/\"\>$required\<\/a\>"
     case $body in
         hyper) body=$hyper
             ;;
@@ -140,6 +140,18 @@ translate()
     esac
     # send notification
     notify-send -u $urgency -t $timeout "$text" "$translation\n$body"
+}
+
+translation()
+{
+    translation="$(wget -U "Mozilla/5.0" -qO - "https://translate.yandex.net/api/v1.5/tr.json/translate?key=$key&text=$send_text&lang=$lang")"
+    translation="$(echo $translation | sed -e 's/.*\[\"//' -e 's/...$//' -e 's/</\&lt\;/g' -e 's/>/\&gt\;/g')"
+}
+
+text()
+{
+    text="$(xsel -o)"
+    send_text="$(echo $text | sed -e 's/&/%26/g' -e 's/</%3C/g' -e 's/>/%3E/g' -e 's/#/%23/g' -e 's/+/%2B/g' -e 's/;/%3B/g')"
 }
 
 notify()
