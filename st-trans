@@ -31,9 +31,10 @@ chmod 755 /usr/bin/st-trans-daemon
 # autostart auto adjust translation view
 wget -qO /etc/xdg/autostart/st-trans-view.desktop \
 "https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/autostart/st-trans-view.desktop" || exit 1
-echo 'st-trans has been installed successfully.
-run command st-trans just for the first time after the installation.
+echo '
+st-trans has been installed successfully.
+Please run command st-trans just for the first time after the installation.
 then you can use the shortcut key Alt + t to translate any selected text at any time.
-or you can bind any shortcut key from your desktop settings to any option st-trans provide.
-take a look at st-trans -h to see all options.'
+or you can bind any shortcut key from your desktop environment settings to
+any option st-trans provide. take a look at st-trans -h to see all options.'
 exit

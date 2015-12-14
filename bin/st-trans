@@ -7,9 +7,9 @@
 
 help ()
 {
-    echo -e "st-trans translate any selected text using Yandex translate.
-st-trans without any option will send the last selected text translation
-as a notification message.
+    echo -e "st-trans - translate any selected text using Yandex translate.
+the command st-trans without any option will send the last selected
+text translation as a notification message.
 
 Usage: st-trans [<OPTIONS>|<[SOURCE]:[TARGET]>]
 
@@ -45,17 +45,16 @@ Options:
     
 Language preferences:
 [SOURCE]:[TARGET]
-To change source and target language use
-SOURCE-CODE:TARGET-CODE
+To change source and target language use SOURCE-CODE:TARGET-CODE
 For example to translate from English to French use this command
 st-trans en:fr
 You can use auto as the source language to auto detect source language
 st-trans auto:fr
-
 Also you can change just one language either source by SOURCE: for example
-st-trans en:
-or target by :TARGET for example
-st-trans :fr"
+st-trans en: or target by :TARGET for example st-trans :fr
+
+REPORTING BUGS
+https://github.com/IbrahimMohammad/st-trans/issues"
 }
 
 adjust_body()
