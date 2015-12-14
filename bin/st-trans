@@ -129,7 +129,7 @@ translate()
     else
         lang=$source-$target
     fi
-    translation="$(wget -U "Mozilla/5.0" -qO - "https://translate.yandex.net/api/v1.5/tr.json/translate?key=$key&text=$text&lang=$lang" | cut -d '"' -f 10)"
+    translation="$(wget -U "Mozilla/5.0" -qO - "https://translate.yandex.net/api/v1.5/tr.json/translate?key=$key&text=$text&lang=$lang" | sed 's/.*\[\"//' | sed 's/...$//')"
     required="Powered by Yandex.Translate"
     hyper="Translate on  \<a href\=\"https://translate.google.com/#$source/$target/$text\"\>Google\<\/a\>  \<a href\=\"https://www.bing.com/translator/?text=$text&amp;from=$source&amp;to=$target\"\>Bing\<\/a\>\n\<a href\=\"http://translate.yandex.com/\"\>$required\<\/a\>"
     case $body in
