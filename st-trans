@@ -17,7 +17,7 @@ wget -qO /usr/bin/st-trans \
 "https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/bin/st-trans" || exit 1
 chmod 755 /usr/bin/st-trans
 # install depends
-if [[ $1 = -no-xbk ]]
+if [[ $1 = -no-xbk ]]; then
     apt-get --assume-yes install libnotify-bin xsel || exit 1
     sed -i '/# installed with/a \ \ \ \ with_xbk=no' /usr/bin/st-trans
 else
