@@ -130,7 +130,7 @@ translate()
     fi
     translation
     required="Powered by Yandex.Translate"
-    hyper="Translate on  \<a href\=\"https://translate.google.com/#$source/$target/$send_text\"\>Google\<\/a\>  \<a href\=\"https://www.bing.com/translator/?text=$send_text&amp;from=$source&amp;to=$target\"\>Bing\<\/a\>\n\<a href\=\"http://translate.yandex.com/\"\>$required\<\/a\>"
+    hyper="Translate on  \<a href\=\"https://translate.google.com/#$source/$target/$send_text\"\>Google\<\/a\>\n\<a href\=\"http://translate.yandex.com/\"\>$required\<\/a\>"
     case $body in
         hyper) body=$hyper
             ;;
