@@ -12,6 +12,11 @@ if [ $EUID -ne 0 ]; then
     echo 'This script must be run as root. use command sudo ./st-trans or su -c ./st-trans to run it.'
     exit 1
 fi
+if [[ $1 = remove ]]; then
+    rm /usr/bin/st-trnas /usr/bin/st-trans-daemon /etc/xdg/autostart/st-trans-view.desktop &> /dev/null
+    echo "st-trans removed."
+    exit
+fi
 # download st-trans
 wget -qO /usr/bin/st-trans \
 "https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/bin/st-trans" || exit 1
