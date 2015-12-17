@@ -167,6 +167,21 @@ notify()
     fi
 }
 
+check_arg()
+{
+    # ensure that argument exist
+    if ! [ -n "$1" ]; then
+        help
+        exit 1
+    fi
+    # check that argument is integer
+    if ! [ "$1" -eq "$1" ] &> /dev/null; then
+        echo "Sorry, integers only"
+        help
+        exit 1
+    fi
+}
+
 # here we go!
 conf=~/.st-transrc
 xbk_conf=~/.xbindkeysrc
@@ -266,34 +281,15 @@ case $1 in
         source=$target
         target=$temp
         write_conf
+        notify "languages inverted"
         ;;
     # change timeout period
-    -t) # ensure that $2 exist
-        if ! [ -n "$2" ]; then
-            help
-            exit 1
-        fi
-        # check that $2 is integer
-        if ! [ "$2" -eq "$2" ] &> /dev/null; then
-            echo 'Sorry, integers only.'
-            help
-            exit 1
-        fi
+    -t) check_arg $2
         timeout=$(($2*1000))
         write_conf
         ;;
     # change urgency level:
-    -u) # ensure that $2 exist
-        if ! [ -n "$2" ]; then
-            help
-            exit 1
-        fi
-        # check that $2 is integer
-        if ! [ "$2" -eq "$2" ] &> /dev/null; then
-            echo "Sorry, integers only"
-            help
-            exit 1
-        fi
+    -u) check_arg $2
         case $2 in
             0)  urgency=low
                 ;;
