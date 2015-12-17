@@ -20,7 +20,7 @@ Options:
 
     -h\t print this help and exit.
 
-    -t\t specifies the timeout in seconds at which to expire the translator
+    -t\t specifies the timeout in seconds at which to expire translation
       \t notifications.
 
     -u\t specifies translator notifications urgency level (low, normal,
@@ -39,19 +39,24 @@ Options:
 
     -d\t use the default rc files. set all options to it's default values.
 
-    -xbk  activate xbindkeys shortcut keys.
+    -xbk  activate default shortcut keys in xbindkeys.
     
-    -no-xbk deactivate xbindkeys shortcut keys.
+    -no-xbk deactivate default shortcut keys in xbindkeys.
     
 Language preferences:
 [SOURCE]:[TARGET]
 To change source and target language use SOURCE-CODE:TARGET-CODE
-For example to translate from English to French use this command
+For example: to translate from English to French use this command
 st-trans en:fr
 You can use auto as the source language to auto detect source language
 st-trans auto:fr
-Also you can change just one language either source by SOURCE: for example
-st-trans en: or target by :TARGET for example st-trans :fr
+Also you can change just one language either source by SOURCE: for example:
+st-trans en: or target by :TARGET like st-trans :fr
+
+default shortcut keys:
+alt+t = st-trans
+alt+i = st-trans -i
+alt+v = st-trans -v
 
 REPORTING BUGS
 https://github.com/IbrahimMohammad/st-trans/issues"
@@ -172,12 +177,12 @@ else
 fi
 source $conf
 
-if ! [ -n "$1" ]; then
-    translate
-else # options
+# options
+case $1 in
+    '') translate
+        ;;
     # print languages table
-    if [ "$1" == "-l" ]; then
-        echo "┌──────────────────────┬───────────────────────┐
+    -l) echo "┌──────────────────────┬───────────────────────┐
 │Language Name    Code │Language Name     Code │
 │──────────────────────│───────────────────────│
 │ Afrikaans      - af  │ Kazakh          - kk  │
@@ -213,46 +218,46 @@ else # options
 │ Italian        - it  │ Vietnamese      - vi  │
 │ Japanese       - ja  │ Welsh           - cy  │
 └──────────────────────┴───────────────────────┘"
+        ;;
     # auto adjust translation view
-    elif [ "$1" == "-a" ]; then
-        if [[ $2 = start_test ]]; then
+    -a) if [[ $2 = start_test ]]; then
             adjust_body start_test
         else
             adjust_body
         fi && write_conf
+        ;;
     # change languages
-    elif echo "$1" | grep -qF ':'; then
-        new_source="$(echo "$1" | cut -sd ':' -f 1)"
-        new_target="$(echo "$1" | cut -sd ':' -f 2)"
-        # is there are a source language?
-		if [ -n "$new_source" ]; then
-            # check language code
-            if ! grep -q "\- $new_source " /usr/bin/st-trans  &&  [ "$new_source" != "auto" ]; then
-                    echo "\"$new_source\" isn't a supported language code. please take a look at languages table with st-trans -l"
-                    exit 1
-            fi
-            # change source language
-            source=$new_source
-            write_conf
-        fi
-        # is there are a target language?
-        if [ -n "$new_target" ]; then
-            # check language code
-            if ! grep -q "\- $new_target " /usr/bin/st-trans; then
-                echo "\"$new_target\" isn't a supported language code. please take a look at supported languages table with st-trans -l"
-                exit 1
-            fi
-            # change target language
-            target=$new_target
-            write_conf
-		fi
+    *:*) new_source="$(echo "$1" | cut -sd ':' -f 1)"
+         new_target="$(echo "$1" | cut -sd ':' -f 2)"
+         # is there are a source language?
+         if [ -n "$new_source" ]; then
+             # check language code
+             if ! grep -q "\- $new_source " /usr/bin/st-trans  &&  [ "$new_source" != "auto" ]; then
+                     echo "\"$new_source\" isn't a supported language code. please take a look at languages table with st-trans -l"
+                     exit 1
+             fi
+             # change source language
+             source=$new_source
+             write_conf
+         fi
+         # is there are a target language?
+         if [ -n "$new_target" ]; then
+             # check language code
+             if ! grep -q "\- $new_target " /usr/bin/st-trans; then
+                 echo "\"$new_target\" isn't a supported language code. please take a look at supported languages table with st-trans -l"
+                 exit 1
+             fi
+             # change target language
+             target=$new_target
+             write_conf
+         fi
+         ;;
     # change API key
-    elif [ "$1" == "-k" ]; then
-        key=$2
+    -k) key=$2
         write_conf
+        ;;
     # invert source language with target language
-    elif [ "$1" == "-v" ]; then
-        if [[ $source = auto ]]; then
+    -v) if [[ $source = auto ]]; then
             notify error "Sorry, source language is set as auto so you can't invert it.\nPlease change source language to any supported language to be able to invert it with the target language."
             exit 1
         fi
@@ -261,9 +266,9 @@ else # options
         source=$target
         target=$temp
         write_conf
+        ;;
     # change timeout period
-    elif [ "$1" == "-t" ]; then
-        # ensure that $2 exist
+    -t) # ensure that $2 exist
         if ! [ -n "$2" ]; then
             help
             exit 1
@@ -276,14 +281,14 @@ else # options
         fi
         timeout=$(($2*1000))
         write_conf
+        ;;
     # change urgency level:
-    elif [ "$1" == "-u" ]; then
-		# ensure that $2 exist
+    -u) # ensure that $2 exist
         if ! [ -n "$2" ]; then
             help
             exit 1
         fi
-		# check that $2 is integer
+        # check that $2 is integer
         if ! [ "$2" -eq "$2" ] &> /dev/null; then
             echo "Sorry, integers only"
             help
@@ -302,35 +307,34 @@ else # options
                 ;;
         esac
         write_conf
+        ;;
     # instant translation mode
-    elif [ "$1" == "-i" ]; then
-        # if the daemon already running close it if not run it
+    -i) # if the daemon already running close it if not run it
         if killall st-trans-daemon &> /dev/null; then
             notify 'Instant translation mode deactivated.'
-	    else
-	        setsid st-trans-daemon < /dev/null &> /dev/null&
+        else
+            setsid st-trans-daemon < /dev/null &> /dev/null&
             notify 'Instant translation mode activated.'
-	    fi
+        fi
+        ;;
+    -d) default_conf
+        ;;
+    -h|--help|help) help
+                    ;;
     # activate xbindkeys shortcut keys.
-    elif [[ $1 = -xbk ]]; then
-        xbindkeysrc
-        xbk=yes
-        write_conf
+    -xbk) xbindkeysrc
+          xbk=yes
+          write_conf
+          ;;
     # deactivate xbindkeys shortcut keys.
-    elif [[ $1 = -no-xbk ]]; then
-        sed -i '/"st-trans/{n;d}' $xbk_conf
-        sed -i '/"st-trans/d' $xbk_conf
-        killall -HUP xbindkeys &> /dev/null
-        xbk=no
-        write_conf
-    elif [[ $1 = -d ]]; then
-        default_conf
-    # show help option
-    elif [ "$1" == "-h" ]; then
-        help
-    # more options with elif
-    else
-        help
-        exit 1
-    fi
-fi
+    -no-xbk) sed -i '/"st-trans/{n;d}' $xbk_conf
+             sed -i '/"st-trans/d' $xbk_conf
+             killall -HUP xbindkeys &> /dev/null
+             xbk=no
+             write_conf
+             ;;
+    # more options here
+    *) help
+       exit 1
+       ;;
+esac
