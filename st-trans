@@ -13,8 +13,7 @@ if [ $EUID -ne 0 ]; then
     exit 1
 fi
 if [[ $1 = remove ]]; then
-    rm /usr/bin/st-trnas /usr/bin/st-trans-daemon /etc/xdg/autostart/st-trans-view.desktop &> /dev/null
-    echo "st-trans removed."
+    rm /usr/bin/st-trans &> /dev/null && rm /usr/bin/st-trans-daemon &> /dev/null && rm /etc/xdg/autostart/st-trans-view.desktop &> /dev/null && echo "st-trans removed."
     exit
 fi
 # download st-trans
