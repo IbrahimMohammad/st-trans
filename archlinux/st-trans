@@ -12,15 +12,25 @@ if [ $EUID -ne 0 ]; then
     echo 'This script must be run as root. use command sudo ./st-trans or su -c ./st-trans to run it.'
     exit 1
 fi
-# install depends
-pacman -S --needed --noconfirm libnotify xsel xbindkeys || exit 1
-# make xbindkeys autostart
-wget -qO /etc/xdg/autostart/xbindkeys.desktop \
-"https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/autostart/xbindkeys.desktop" || exit 1
+if [[ $1 = remove ]]; then
+    rm /usr/bin/st-trans &> /dev/null && rm /usr/bin/st-trans-daemon &> /dev/null && rm /etc/xdg/autostart/st-trans-view.desktop &> /dev/null && rm /etc/xdg/autostart/xbindkeys.desktop &> /dev/null && echo "st-trans removed."
+    exit
+fi
 # download st-trans
 wget -qO /usr/bin/st-trans \
 "https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/bin/st-trans" || exit 1
 chmod 755 /usr/bin/st-trans
+# install depends
+if [[ $1 = -no-xbk ]]; then
+    pacman -S --needed --noconfirm libnotify xsel || exit 1
+    sed -i '/# installed with/a \ \ \ \ with_xbk=no' /usr/bin/st-trans
+else
+    pacman -S --needed --noconfirm libnotify xsel xbindkeys || exit 1
+    sed -i '/# installed with/a \ \ \ \ with_xbk=yes' /usr/bin/st-trans
+    # make xbindkeys autostart
+    wget -qO /etc/xdg/autostart/xbindkeys.desktop \
+"https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/autostart/xbindkeys.desktop" || exit 1
+fi
 # download daemon
 wget -qO /usr/bin/st-trans-daemon \
 "https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/bin/st-trans-daemon" || exit 1
@@ -28,5 +38,10 @@ chmod 755 /usr/bin/st-trans-daemon
 # autostart auto adjust translation view
 wget -qO /etc/xdg/autostart/st-trans-view.desktop \
 "https://raw.githubusercontent.com/IbrahimMohammad/st-trans/master/autostart/st-trans-view.desktop" || exit 1
-echo 'st-trans has been installed successfully. run command st-trans just for the first time after the installation. then you can use the shortcut key Alt + t to translate any selected text at any time :)'
+echo '
+st-trans has been installed successfully.
+Please run command st-trans just for the first time after the installation.
+then you can use the shortcut key Alt + t to translate any selected text at any time.
+or you can bind any shortcut key from your desktop environment settings to
+any option st-trans provide. take a look at st-trans -h to see all options.'
 exit
