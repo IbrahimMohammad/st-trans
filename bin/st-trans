@@ -16,7 +16,7 @@ Usage: st-trans [<OPTIONS>|<[SOURCE]:[TARGET]>]
 Options:
     -l\t show a list of supported languages and codes.
 
-    -k\t change Yandex Translate API key.
+    -k\t change Yandex Translate API key. write your key after '-k'
 
     -h\t print this help and exit.
 
