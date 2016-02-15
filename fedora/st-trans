@@ -22,10 +22,10 @@ wget -qO /usr/bin/st-trans \
 chmod 755 /usr/bin/st-trans
 # install depends
 if [[ $1 = -no-xbk ]]; then
-    dnf --assumeyes install xsel || exit 1
+    dnf --assumeyes install xsel sqlite || exit 1
     sed -i '/# installed with/a \ \ \ \ with_xbk=no' /usr/bin/st-trans
 else
-    dnf --assumeyes install xsel xbindkeys || exit 1
+    dnf --assumeyes install xsel sqlite xbindkeys || exit 1
     sed -i '/# installed with/a \ \ \ \ with_xbk=yes' /usr/bin/st-trans
     # make xbindkeys autostart
     wget -qO /etc/xdg/autostart/xbindkeys.desktop \

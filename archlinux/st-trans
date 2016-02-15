@@ -22,10 +22,10 @@ wget -qO /usr/bin/st-trans \
 chmod 755 /usr/bin/st-trans
 # install depends
 if [[ $1 = -no-xbk ]]; then
-    pacman -S --needed --noconfirm libnotify xsel || exit 1
+    pacman -S --needed --noconfirm libnotify xsel sqlite || exit 1
     sed -i '/# installed with/a \ \ \ \ with_xbk=no' /usr/bin/st-trans
 else
-    pacman -S --needed --noconfirm libnotify xsel xbindkeys || exit 1
+    pacman -S --needed --noconfirm libnotify xsel sqlite xbindkeys || exit 1
     sed -i '/# installed with/a \ \ \ \ with_xbk=yes' /usr/bin/st-trans
     # make xbindkeys autostart
     wget -qO /etc/xdg/autostart/xbindkeys.desktop \

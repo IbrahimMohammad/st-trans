@@ -22,10 +22,10 @@ wget -qO /usr/bin/st-trans \
 chmod 755 /usr/bin/st-trans
 # install depends
 if [[ $1 = -no-xbk ]]; then
-    apt-get --assume-yes install libnotify-bin xsel || exit 1
+    apt-get --assume-yes install libnotify-bin xsel sqlite3 || exit 1
     sed -i '/# installed with/a \ \ \ \ with_xbk=no' /usr/bin/st-trans
 else
-    apt-get --assume-yes install libnotify-bin xsel xbindkeys || exit 1
+    apt-get --assume-yes install libnotify-bin xsel sqlite3 xbindkeys || exit 1
     sed -i '/# installed with/a \ \ \ \ with_xbk=yes' /usr/bin/st-trans
 fi
 # download daemon
