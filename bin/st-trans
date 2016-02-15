@@ -142,8 +142,15 @@ translate()
         required) body=$required
             ;;
     esac
+    # dictionaries
+    case $target in
+        ar) techdict
+            ;;
+        *)
+            ;;
+    esac
     # send notification
-    notify-send -u $urgency -t $timeout "$text" "$translation\n$body"
+    notify-send -u $urgency -t $timeout "$text" "$translation$techdict\n$body"
 }
 
 translation()
@@ -156,6 +163,26 @@ text()
 {
     text="$(xsel -o)"
     send_text="$(echo $text | sed -e 's/&/%26/g' -e 's/</%3C/g' -e 's/>/%3E/g' -e 's/#/%23/g' -e 's/+/%2B/g' -e 's/;/%3B/g')"
+}
+
+techdict()
+{
+    # check if tech dictionary exist
+    techdict_db=~/.dictdb/techdict.db
+    if ! [ -e $techdict_db ]; then
+        mkdir -p ~/.dictdb
+        wget -qO $techdict_db "https://github.com/IbrahimMohammad/st-trans/blob/master/.dictdb/techdict.db?raw=true"
+    fi
+    # change first char to uppercase and all chars to lowercase
+    tech_text=${text,,}
+    tech_text=\'${tech_text^}\'
+    # get the translation
+    get_tech_translation="$(sqlite3 $techdict_db "select ar,ar1,ar2 from trans where en=$tech_text")"
+    tech_translation="$(echo $get_tech_translation | sed -e 's/||//g' -e 's/|$//' -e 's/|/،/')"
+    # check if we get a translation
+    if ! [ -z $tech_translation ] &> /dev/null; then
+        techdict="\nالقاموس التقني: $tech_translation"
+    fi
 }
 
 notify()
