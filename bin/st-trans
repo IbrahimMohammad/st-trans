@@ -194,13 +194,18 @@ notify()
     fi
 }
 
-check_arg()
+arg_exist()
 {
     # ensure that argument exist
     if ! [ -n "$1" ]; then
         help
         exit 1
     fi
+}
+
+check_arg()
+{
+    arg_exist $1
     # check that argument is integer
     if ! [ "$1" -eq "$1" ] &> /dev/null; then
         echo "Sorry, integers only"
@@ -295,8 +300,14 @@ case $1 in
          fi
          ;;
     # change API key
-    -k) key=$2
-        write_conf
+    -k) arg_exist $2
+        if [[ $2 = trns* ]]; then
+            key=$2
+            write_conf
+        else
+            echo "Sorry, wrong API key"
+            exit 1
+        fi
         ;;
     # invert source language with target language
     -v) if [[ $source = auto ]]; then
