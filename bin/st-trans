@@ -219,10 +219,13 @@ conf=~/.st-transrc
 xbk_conf=~/.xbindkeysrc
 if ! [ -e $conf ]; then
     default_conf
+    source $conf
 else
-    xbindkeysrc
+    source $conf
+    if [ xbk = "yes" ]; then
+        xbindkeysrc
+    fi
 fi
-source $conf
 
 # options
 case $1 in
